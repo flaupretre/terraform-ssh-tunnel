@@ -1,4 +1,10 @@
 
+variable "create" {
+  type = bool
+  description = "If false, do nothing"
+  default = true
+}
+
 variable "python_cmd" {
   type = string
   description = "Command to run python"

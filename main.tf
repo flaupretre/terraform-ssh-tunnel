@@ -13,6 +13,7 @@ data external free_port {
 }
 
 data external ssh_tunnel {
+  count = (var.create ? 1 : 0)
   program = [
     var.shell_cmd,
     "${path.module}/tunnel.sh",
