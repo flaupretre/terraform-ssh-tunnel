@@ -13,6 +13,8 @@ if [ -z "$MPID" ] ; then
   echo '{}'
   p=`ps -p $PPID -o "ppid="`
   nohup timeout $TIMEOUT bash "$ABSPATH/tunnel.sh" $@ $p <&- >&- 2>&- &
+  # Allow the tunnel to fully establish
+  sleep 5
   exit 0
 fi
 
