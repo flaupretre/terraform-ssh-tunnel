@@ -19,6 +19,7 @@ data external ssh_tunnel {
     "${path.module}/tunnel.sh",
     var.timeout,
     var.ssh_cmd,
+    var.ssh_config,
     data.external.free_port.result.port,
     var.target_host,
     var.target_port,
