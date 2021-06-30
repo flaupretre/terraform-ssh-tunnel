@@ -23,6 +23,12 @@ variable "ssh_cmd" {
   default = "ssh"
 }
 
+variable "ssh_config" {
+  type = string
+  description = "SSH Config file to use"
+  default = "~/.ssh/config"
+}
+
 variable "target_host" {
   type = string
   description = "The target host. Name will be resolved by gateway"
