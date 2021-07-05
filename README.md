@@ -29,6 +29,7 @@ Example :
       target_host = aws_db_instance.mydb.address
       target_port = aws_db_instance.mydb.port
       gateway_host = data.aws_instances.bastions.public_ips[0]
+      gateway_port = 22
     }
     
     #----
@@ -46,4 +47,3 @@ Example :
     }
     
     .... and other mysql_xxx resources...
-    

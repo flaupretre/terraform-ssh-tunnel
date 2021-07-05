@@ -4,8 +4,9 @@ LOCAL_PORT="$3"
 TARGET_HOST="$4"
 TARGET_PORT="$5"
 GATEWAY="$6"
-SHELL="$7"
-MPID="$8"
+GATEWAY_PORT="$7"
+SHELL="$8"
+MPID="$9"
 
 ABSPATH=$(cd "$(dirname "$0")"; pwd -P)
 
@@ -16,7 +17,7 @@ if [ -z "$MPID" ] ; then
   exit 0
 fi
 
-$SSH -N -L $LOCAL_PORT:$TARGET_HOST:$TARGET_PORT $GATEWAY &
+$SSH -N -L $LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT $GATEWAY &
 CPID=$!
 
 while true ; do
