@@ -44,6 +44,12 @@ variable "gateway_user" {
   default = ""
 }
 
+variable "gateway_port" {
+  type = number
+  description = "Gateway port"
+  default = 22
+}
+
 variable "timeout" {
   type = string
   description = "Timeout value ensures tunnel cannot remain open forever"

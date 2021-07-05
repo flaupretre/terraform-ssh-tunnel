@@ -23,6 +23,7 @@ data external ssh_tunnel {
     var.target_host,
     var.target_port,
     "${local.gw_prefix}${var.gateway_host}",
+    var.gateway_port,
     var.shell_cmd
   ]
 }
