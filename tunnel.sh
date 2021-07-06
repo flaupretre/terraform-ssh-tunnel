@@ -13,7 +13,7 @@ ABSPATH=$(cd "$(dirname "$0")"; pwd -P)
 if [ -z "$MPID" ] ; then
   echo '{}'
   p=`ps -p $PPID -o "ppid="`
-  nohup timeout $TIMEOUT bash "$ABSPATH/tunnel.sh" $@ $p <&- >&- 2>&- &
+  nohup timeout $TIMEOUT $SHELL "$ABSPATH/tunnel.sh" $@ $p <&- >&- 2>&- &
   exit 0
 fi
 
