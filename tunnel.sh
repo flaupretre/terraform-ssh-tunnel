@@ -1,3 +1,4 @@
+
 TIMEOUT="$1"
 SSH="$2"
 LOCAL_PORT="$3"
@@ -11,9 +12,11 @@ MPID="$9"
 ABSPATH=$(cd "$(dirname "$0")"; pwd -P)
 
 if [ -z "$MPID" ] ; then
-  echo '{}'
+  echo '{ "host": "127.0.0.1" }'
   p=`ps -p $PPID -o "ppid="`
   nohup timeout $TIMEOUT $SHELL "$ABSPATH/tunnel.sh" $@ $p <&- >&- 2>&- &
+  # A little time for the SSH tunnel process to start
+  sleep 2
   exit 0
 fi
 
