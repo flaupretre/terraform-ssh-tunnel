@@ -23,6 +23,12 @@ variable "ssh_cmd" {
   default = "ssh"
 }
 
+variable "local_host" {
+  type = string
+  description = "Local host name or IP. Set only if you cannot use the '127.0.0.1' default value. This string will be returned as-is in the 'host' output"
+  default="127.0.0.1"
+}
+
 variable "target_host" {
   type = string
   description = "The target host. Name will be resolved by gateway"
