@@ -16,14 +16,17 @@ data external ssh_tunnel {
   count = (var.create ? 1 : 0)
   program = [
     var.shell_cmd,
-    "${path.module}/tunnel.sh",
-    var.timeout,
-    var.ssh_cmd,
-    data.external.free_port.result.port,
-    var.target_host,
-    var.target_port,
-    "${local.gw_prefix}${var.gateway_host}",
-    var.gateway_port,
-    var.shell_cmd
+    "${path.module}/tunnel.sh"
   ]
+  query = {
+    timeout = var.timeout,
+    ssh_cmd = var.ssh_cmd,
+    local_host = var.local_host,
+    local_port = data.external.free_port.result.port,
+    target_host = var.target_host,
+    target_port = var.target_port,
+    gateway_host = "${local.gw_prefix}${var.gateway_host}",
+    gateway_port = var.gateway_port,
+    shell_cmd = var.shell_cmd
+  }
 }
