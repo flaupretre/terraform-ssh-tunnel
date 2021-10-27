@@ -1,15 +1,19 @@
 
-# DEBUG=y
-
 MPID="$1"
+ret=0
 
 #---
 
 if [ -z "$MPID" ] ; then
+  if [ -n "$TUNNEL_DEBUG" ] ; then
+    set -x
+    env >&2
+  fi
+
   ABSPATH=$(cd "$(dirname "$0")"; pwd -P)
 
   query="`dd 2>/dev/null`"
-  #echo "query: <$query>" >&2
+  [ -n "$TUNNEL_DEBUG" ] && echo "query: <$query>" >&2
 
   export TIMEOUT="`echo $query | sed -e 's/^.*\"timeout\": *\"//' -e 's/\".*$//g'`"
   export SSH_CMD="`echo $query | sed -e 's/^.*\"ssh_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
@@ -21,35 +25,42 @@ if [ -z "$MPID" ] ; then
   export GATEWAY_PORT="`echo $query | sed -e 's/^.*\"gateway_port\": *\"//' -e 's/\".*$//g'`"
   export SHELL_CMD="`echo $query | sed -e 's/^.*\"shell_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
 
-  if [ -n "$DEBUG" ] ; then
-    exec 2>/tmp/t1
-    set -x
-    env >&2
-  fi
   echo "{ \"host\": \"$LOCAL_HOST\" }"
   p=`ps -p $PPID -o "ppid="`
-  nohup timeout $TIMEOUT $SHELL_CMD "$ABSPATH/tunnel.sh" $p <&- >&- 2>&- &
-  # A little time for the SSH tunnel process to start
-  sleep 2
+  clog=`mktemp`
+  nohup timeout $TIMEOUT $SHELL_CMD "$ABSPATH/tunnel.sh" $p <&- >&- 2>$clog &
+  CPID=$!
+  # A little time for the SSH tunnel process to start or fail
+  sleep 3
+  # If the child process does not exist anymore after this delay, report failure
+  if ! ps -p $CPID >/dev/null 2>&1 ; then
+    echo "Child process ($CPID) failure - Aborting" >&2
+    echo "Child diagnostics follow:" >&2
+    cat $clog >&2
+    rm -f $clog
+    ret=1
+  fi
+  rm -f $clog
 else
   #------ Child
-  if [ -n "$DEBUG" ] ; then
-    exec 2>/tmp/t2
+  if [ -n "$TUNNEL_DEBUG" ] ; then
     set -x
     env >&2
   fi
 
-  $SSH_CMD -N -L $LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT $GATEWAY_HOST &
+  $SSH_CMD -N -L localhost:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT $GATEWAY_HOST &
   CPID=$!
 
   while true ; do
-    if ! ps -p $MPID &>/dev/null; then
-      break
+    if ! ps -p $CPID >/dev/null 2>&1 ; then
+      echo "SSH process ($CPID) failure - Aborting" >&2
+      exit 1
     fi
-    sleep 5
+    ps -p $MPID >/dev/null 2>&1 || break
+    sleep 1
   done
 
   kill $CPID
 fi
 
-exit 0
+exit $ret
