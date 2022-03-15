@@ -11,6 +11,10 @@ an SSH tunnel on an SSH bastion host. Everything you need is a host which can
 connect to your private resources and that you can access using SSH
 (this is generally named 'bastion host').
 
+Please note that, when the 'gateway_host' input parameter is null, no tunnel
+is created and the target host and port are returned. This allows
+to use this module and decide programmaticaly whether a tunnel is wanted or not.
+
 ## SSH command and options
 
 By default, the module will use the 'ssh' string to launch the SSH client
@@ -47,7 +51,7 @@ multiple targets, either tunneled or not.
 ## Note
 
 Please note that you MUST reference the 'module.db_tunnel.host' output variable
-in your provider definition, even if the returned string is always the same.
+in your provider definition, even if the returned string looks constant.
 If you don't, terraform won't create the required dependencies to the SSH tunnel
 and subsequent runs will fail when trying to refresh object states.
 
@@ -132,7 +136,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_create"></a> [create](#input\_create) | If false, do nothing | `bool` | `true` | no |
-| <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Name or IP of SSH gateway | `any` | n/a | yes |
+| <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Name or IP of SSH gateway - null if no gateway | `any` | `null` | no |
 | <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port) | Gateway port | `number` | `22` | no |
 | <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on SSH gateway (default = current username) | `any` | `""` | no |
 | <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use the '127.0.0.1' default value. This string will be returned as-is in the 'host' output | `string` | `"127.0.0.1"` | no |
@@ -148,5 +152,5 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_host"></a> [host](#output\_host) | Host to connect to |
-| <a name="output_port"></a> [port](#output\_port) | Local port number to connect to |
+| <a name="output_port"></a> [port](#output\_port) | Port number to connect to |
 <!-- END_TF_DOCS -->

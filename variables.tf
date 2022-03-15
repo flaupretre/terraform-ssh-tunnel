@@ -41,7 +41,8 @@ variable "target_port" {
 
 variable "gateway_host" {
   type = any
-  description = "Name or IP of SSH gateway"
+  default = null
+  description = "Name or IP of SSH gateway - null if no gateway"
 }
 
 variable "gateway_user" {
