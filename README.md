@@ -146,6 +146,7 @@ No modules.
 | <a name="input_target_host"></a> [target\_host](#input\_target\_host) | The target host. Name will be resolved by gateway | `string` | n/a | yes |
 | <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
 | <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel cannot remain open forever | `string` | `"30m"` | no |
+| <a name="input_ssh_tunnel_check_sleep"></a> [ssh\_tunnel\_check\_sleep](#input\_ssh\_tunnel\_check\_sleep) | Extra wait time allows for accounting for slow ssh tunnel establish time | `string` | `"0s"` | no |
 
 ## Outputs
 
