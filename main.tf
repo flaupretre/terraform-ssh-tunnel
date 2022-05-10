@@ -29,6 +29,7 @@ data external ssh_tunnel {
     target_port = var.target_port,
     gateway_host = local.gw,
     gateway_port = var.gateway_port,
-    shell_cmd = var.shell_cmd
+    shell_cmd = var.shell_cmd,
+    ssh_tunnel_check_sleep = var.ssh_tunnel_check_sleep
   }
 }
