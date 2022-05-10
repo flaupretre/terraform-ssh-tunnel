@@ -24,6 +24,7 @@ if [ -z "$MPID" ] ; then
   export GATEWAY_HOST="`echo $query | sed -e 's/^.*\"gateway_host\": *\"//' -e 's/\".*$//g'`"
   export GATEWAY_PORT="`echo $query | sed -e 's/^.*\"gateway_port\": *\"//' -e 's/\".*$//g'`"
   export SHELL_CMD="`echo $query | sed -e 's/^.*\"shell_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
+  export SSH_TUNNEL_CHECK_SLEEP="`echo $query | sed -e 's/^.*\"ssh_tunnel_check_sleep\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
 
   echo "{ \"host\": \"$LOCAL_HOST\" }"
   p=`ps -p $PPID -o "ppid="`
@@ -50,6 +51,8 @@ else
 
   $SSH_CMD -N -L localhost:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT $GATEWAY_HOST &
   CPID=$!
+  
+  sleep $SSH_TUNNEL_CHECK_SLEEP
 
   while true ; do
     if ! ps -p $CPID >/dev/null 2>&1 ; then
