@@ -62,3 +62,9 @@ variable "timeout" {
   description = "Timeout value ensures tunnel cannot remain open forever"
   default = "30m"
 }
+
+variable "ssh_tunnel_check_sleep" {
+  type = string
+  description = "extra time to wait for ssh tunnel to connect"
+  default = "0s"
+}
