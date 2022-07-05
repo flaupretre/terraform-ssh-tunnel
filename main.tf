@@ -1,10 +1,8 @@
 
 locals {
-  do_tunnel = (var.create && var.gateway_host != null)
-  
   gw = (var.gateway_host == null) ? "" : (var.gateway_user == "" ? var.gateway_host : "${var.gateway_user}@${var.gateway_host}")
 }
-  
+
 
 data external free_port {
   program = [
@@ -15,7 +13,7 @@ data external free_port {
 }
 
 data external ssh_tunnel {
-  count = (local.do_tunnel ? 1 : 0)
+  count = var.create ? 1 : 0
   program = [
     var.shell_cmd,
     "${path.module}/tunnel.sh"
