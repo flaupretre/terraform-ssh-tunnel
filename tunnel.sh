@@ -49,7 +49,7 @@ else
     env >&2
   fi
 
-  $SSH_CMD -N -L localhost:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT $GATEWAY_HOST &
+  $SSH_CMD -o "StrictHostKeyChecking no" -N -L localhost:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT $GATEWAY_HOST &
   CPID=$!
   
   sleep $SSH_TUNNEL_CHECK_SLEEP
