@@ -1,11 +1,11 @@
 
 output "port" {
-  value = (local.do_tunnel ? data.external.free_port.result.port : var.target_port)
+  value = data.external.ssh_tunnel.result.port
   description = "Port number to connect to"
 }
 
 output "host" {
-  value = (local.do_tunnel ? data.external.ssh_tunnel[0].result.host : var.target_host)
+  value = data.external.ssh_tunnel.result.host
   description = "Host to connect to"
 }
 

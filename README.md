@@ -4,16 +4,15 @@ This terraform module allows to communicate with a resource via an SSH tunnel.
 I use it to create and configure databases on AWS RDS instances but it can be
 used to access any target/port. My RDS instances
 are connected to private subnets only and, so,
-cannot be accessed directly by the host I'm running terraform on.
-Running terraform on a host inside the VPC could be a solution but quite complex
-to install and manage. The solution I chose was to access my resources via
+cannot be accessed directly from the desktop I'm running terraform on.
+Running terraform on a host inside the VPC could be a solution but too complex
+to install and manage. An easier solution was to access my resources via
 an SSH tunnel on an SSH bastion host. Everything you need is a host which can
-connect to your private resources and that you can access using SSH
-(this is generally named 'bastion host').
+connect to your private resources and that you can access from your client using SSH (this is generally named 'bastion host').
 
-Please note that, when the 'gateway_host' input parameter is null, no tunnel
-is created and the target host and port are returned. This allows
-to use this module and decide programmaticaly whether a tunnel is wanted or not.
+Please note that, when the 'create' input variable is false or the 'gateway_host' input variable is an empty string, no tunnel
+is created and the target host and port are returned, causing a direct connection to the target. So, input variables are used to decide whether a
+tunnel is wanted or not.
 
 ## SSH command and options
 
@@ -38,7 +37,7 @@ possible SSH agent configuration to retrieve your private key.
 ## Target host name resolution
 
 When supplying the target DNS name, note that the name will be resolved by the
-bastion, not by the host you're running terraform on. So, you can use a private
+bastion host, not by the client you're running terraform on. So, you can use a private
 DNS name, like 'xxxx.csdfkzpf0iww.eu-west-1.rds.amazonaws.com'
 without having to convert it to an IP address first.
 
@@ -47,13 +46,6 @@ without having to convert it to an IP address first.
 As you can see in the example below, using a provider alias is encouraged as
 it is cleaner and makes it possible from a single provider to combine access to
 multiple targets, either tunneled or not.
-
-## Note
-
-Please note that you MUST reference the 'module.db_tunnel.host' output variable
-in your provider definition, even if the returned string looks constant.
-If you don't, terraform won't create the required dependencies to the SSH tunnel
-and subsequent runs will fail when trying to refresh object states.
 
 ## Example
 
@@ -84,7 +76,6 @@ and subsequent runs will fail when trying to refresh object states.
     provider mysql {
       alias    = "tunnel"
 
-      # Always reference 'module.db_tunnel.host' to create the required dependencies
       endpoint = "${module.db_tunnel.host}:${module.db_tunnel.port}"
 
       # Target credentials
@@ -135,18 +126,18 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_create"></a> [create](#input\_create) | If false, do nothing | `bool` | `true` | no |
-| <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Name or IP of SSH gateway - null if no gateway | `any` | `null` | no |
+| <a name="input_create"></a> [create](#input\_create) | If false, do nothing and return target host | `bool` | `true` | no |
+| <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Name or IP of SSH gateway - empty string if no gateway (direct connection) | `any` | `""` | no |
 | <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port) | Gateway port | `number` | `22` | no |
-| <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on SSH gateway (default = current username) | `any` | `""` | no |
-| <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use the '127.0.0.1' default value. This string will be returned as-is in the 'host' output | `string` | `"127.0.0.1"` | no |
+| <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on SSH gateway (default = empty string = current username) | `any` | `""` | no |
+| <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use the '127.0.0.1' default value | `string` | `"127.0.0.1"` | no |
 | <a name="input_python_cmd"></a> [python\_cmd](#input\_python\_cmd) | Command to run python | `string` | `"python"` | no |
 | <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Command to run a shell | `string` | `"bash"` | no |
 | <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Shell command to use to start ssh client | `string` | `"ssh"` | no |
+| <a name="input_ssh_tunnel_check_sleep"></a> [ssh\_tunnel\_check\_sleep](#input\_ssh\_tunnel\_check\_sleep) | extra time to wait for ssh tunnel to connect | `string` | `"0s"` | no |
 | <a name="input_target_host"></a> [target\_host](#input\_target\_host) | The target host. Name will be resolved by gateway | `string` | n/a | yes |
 | <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
-| <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel cannot remain open forever | `string` | `"30m"` | no |
-| <a name="input_ssh_tunnel_check_sleep"></a> [ssh\_tunnel\_check\_sleep](#input\_ssh\_tunnel\_check\_sleep) | Extra wait time allows for accounting for slow ssh tunnel establish time | `string` | `"0s"` | no |
+| <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel won't remain open forever | `string` | `"30m"` | no |
 
 ## Outputs
 
