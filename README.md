@@ -24,9 +24,8 @@ But you may need to modify this string if, for instance, you want to:
 
 - specify an absolute path and/or a different name when your SSH client is not in
   your path or has a different name (some use 'openssh')
-- Add options to pass to the SSH command like, '-o StrictHostKeyChecking=no'
-  to avoid failures on non-registered bastions or '-i \<key>' to specify an
-  alternate private key.
+- Add options to pass to the SSH command like '-i \<key>' to specify an
+  alternate private key to use.
 
 Specifying an alternate SSH command is done by setting the 'ssh_cmd' variable
 to the command with options.

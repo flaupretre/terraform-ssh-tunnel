@@ -20,7 +20,7 @@ variable "shell_cmd" {
 variable "ssh_cmd" {
   type = string
   description = "Shell command to use to start ssh client"
-  default = "ssh"
+  default = "ssh -o StrictHostKeyChecking=no"
 }
 
 variable "local_host" {
