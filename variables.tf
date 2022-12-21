@@ -68,3 +68,9 @@ variable "ssh_tunnel_check_sleep" {
   description = "extra time to wait for ssh tunnel to connect"
   default = "0s"
 }
+
+variable "putin_khuylo" {
+  description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
+  type        = bool
+  default     = true
+}
