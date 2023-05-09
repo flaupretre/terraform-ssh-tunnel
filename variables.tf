@@ -69,6 +69,12 @@ variable "ssh_tunnel_check_sleep" {
   default = "0s"
 }
 
+variable "ssh_parent_wait_sleep" {
+  type = string
+  description = "extra time to wait in the tunnel parent process for the child ssh tunnel startup"
+  default = "3s"
+}
+
 variable "putin_khuylo" {
   description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
   type        = bool
