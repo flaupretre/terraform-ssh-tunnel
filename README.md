@@ -144,6 +144,7 @@ No modules.
 | <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Command to run a shell | `string` | `"bash"` | no |
 | <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Shell command to use to start ssh client | `string` | `"ssh -o StrictHostKeyChecking=no"` | no |
 | <a name="input_ssh_tunnel_check_sleep"></a> [ssh\_tunnel\_check\_sleep](#input\_ssh\_tunnel\_check\_sleep) | extra time to wait for ssh tunnel to connect | `string` | `"0s"` | no |
+| <a name="input_ssh_parent_wait_sleep"></a> [ssh\_parent\_wait\_sleep](#input\_ssh\_parent\_wait\_sleep) | extra time to wait in the parent process for the child ssh tunnel to open ports | `string` | `"3s"` | no |
 | <a name="input_target_host"></a> [target\_host](#input\_target\_host) | The target host. Name will be resolved by gateway | `string` | n/a | yes |
 | <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
 | <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel won't remain open forever | `string` | `"30m"` | no |

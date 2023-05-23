@@ -27,6 +27,7 @@ if [ -z "$MPID" ] ; then
   export GATEWAY_USER="`echo $query | sed -e 's/^.*\"gateway_user\": *\"//' -e 's/\".*$//g'`"
   export SHELL_CMD="`echo $query | sed -e 's/^.*\"shell_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
   export SSH_TUNNEL_CHECK_SLEEP="`echo $query | sed -e 's/^.*\"ssh_tunnel_check_sleep\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
+  export SSH_PARENT_WAIT_SLEEP="`echo $query | sed -e 's/^.*\"ssh_parent_wait_sleep\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
   export CREATE="`echo $query | sed -e 's/^.*\"create\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
 
   if [ "X$CREATE" = X -o "X$GATEWAY_HOST" = X ] ; then
@@ -48,7 +49,7 @@ if [ -z "$MPID" ] ; then
     nohup timeout $TIMEOUT $SHELL_CMD "$ABSPATH/tunnel.sh" $p <&- >&- 2>$clog &
     CPID=$!
     # A little time for the SSH tunnel process to start or fail
-    sleep 3
+    sleep $SSH_PARENT_WAIT_SLEEP
     # If the child process does not exist anymore after this delay, report failure
     if ! ps -p $CPID >/dev/null 2>&1 ; then
       echo "Child process ($CPID) failure - Aborting" >&2
