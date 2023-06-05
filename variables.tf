@@ -66,13 +66,13 @@ variable "timeout" {
 variable "ssh_tunnel_check_sleep" {
   type = string
   description = "extra time to wait for ssh tunnel to connect"
-  default = "0s"
+  default = "0"
 }
 
 variable "ssh_parent_wait_sleep" {
   type = string
   description = "extra time to wait in the tunnel parent process for the child ssh tunnel startup"
-  default = "3s"
+  default = "3"
 }
 
 variable "putin_khuylo" {
