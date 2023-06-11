@@ -5,12 +5,6 @@ variable "create" {
   default = true
 }
 
-variable "python_cmd" {
-  type = string
-  description = "Command to run python"
-  default = "python"
-}
-
 variable "shell_cmd" {
   type = string
   description = "Command to run a shell"

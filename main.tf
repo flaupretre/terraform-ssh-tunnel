@@ -1,9 +1,7 @@
-
 data external free_port {
   program = [
-    var.python_cmd,
-    "-c",
-    "import socket; s=socket.socket(); s.bind((\"\", 0)); print(\"{ \\\"port\\\": \\\"\" + str(s.getsockname()[1]) + \"\\\" }\"); s.close()"
+    var.shell_cmd,
+    "${path.module}/get-open-port.sh"
   ]
 }
 
