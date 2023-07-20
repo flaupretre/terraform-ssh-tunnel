@@ -23,6 +23,7 @@ an SSH tunnel via a bastion host. The steps are :
    * [Environment](#environment)
    * [Multiple SSH gateways](#multiple-ssh-gateways)
    * [SSM support](#ssm-support)
+   * [External - Using a not-yet-supported mechanism](#external---using-a-not-yet-supported-mechanism)
    * [Requirements](#requirements)
       * [Posix shell](#posix-shell)
       * [timeout](#timeout)
@@ -38,7 +39,7 @@ an SSH tunnel via a bastion host. The steps are :
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Thu Jul 20 12:01:25 UTC 2023 -->
+<!-- Added by: flaupretre, at: Thu Jul 20 12:33:09 UTC 2023 -->
 
 <!--te-->
 
@@ -118,6 +119,21 @@ How to activate the SSM variant :
 - set 'gateway_user' to the appropriate name (see documentation), generally
   'ec2-user' ('ubuntu' when using Ubuntu-based AMIs).
 - if needed, set the AWS_PROFILE environment variable using the 'env' input var.
+
+## External - Using a not-yet-supported mechanism
+
+The code can be extended to use a mechanism the module does not support yet. If you
+set the 'type' to 'external' and provide the path of a shell script as 'external_script',
+this script will be sourced by a shell interpreter to create the tunnel.
+
+You should use the existing
+scripts in the 'gateways subdirectory as examples to understand how to get the parameters.
+Your script must also set
+an environment variable named CPID. This must contain the PID of the
+process managing the tunnel.
+
+If it can interest other users, feel free to move it into the 'gateways'
+subdirectory and create a pull request.
 
 ## Requirements
 
@@ -237,6 +253,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_create"></a> [create](#input\_create) | If false, do nothing and return target host | `bool` | `true` | no |
 | <a name="input_env"></a> [env](#input\_env) | String to eval before launching the tunnel | `string` | `""` | no |
+| <a name="input_external_script"></a> [external\_script](#input\_external\_script) | Path of external script if type == 'external' | `string` | `"undef"` | no |
 | <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Gateway (name or IP for SSH, Instance ID for SSM) - empty if no gateway (direct connection) | `any` | `""` | no |
 | <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port) | Gateway port | `number` | `22` | no |
 | <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on SSH gateway (default = empty string = current username) | `any` | `""` | no |
@@ -250,7 +267,7 @@ No modules.
 | <a name="input_target_host"></a> [target\_host](#input\_target\_host) | The target host. Name will be resolved by gateway | `string` | n/a | yes |
 | <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
 | <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel won't remain open forever | `string` | `"30m"` | no |
-| <a name="input_type"></a> [type](#input\_type) | Tunnel type (default = ssh) | `string` | `"ssh"` | no |
+| <a name="input_type"></a> [type](#input\_type) | Tunnel type (['ssh'], 'ssm', or 'external') | `string` | `"ssh"` | no |
 
 ## Outputs
 

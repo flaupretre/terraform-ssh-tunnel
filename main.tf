@@ -27,5 +27,6 @@ data external ssh_tunnel {
     create = ((var.create && var.putin_khuylo) ? "y" : "")
     env = var.env
     ssm_document_name = var.ssm_document_name
+    external_script = var.external_script
   }
 }

@@ -1,7 +1,15 @@
 
+TOC_SCRIPT = gh-md-toc
+TOC_URL = https://raw.githubusercontent.com/ekalinin/github-markdown-toc/master/$(TOC_SCRIPT)
+
+#-------------
+
 doc:
-	[ -x gh-md-toc ] || curl https://raw.githubusercontent.com/ekalinin/github-markdown-toc/master/gh-md-toc -o gh-md-toc
-	chmod a+x gh-md-toc
+	[ -x $(TOC_SCRIPT) ] || curl $(TOC_URL) -o $(TOC_SCRIPT)
+	chmod +x $(TOC_SCRIPT)
 	terraform-docs --output-file README.md markdown table .
-	./gh-md-toc --insert README.md
+	./$(TOC_SCRIPT) --insert README.md
+
+clean:
+	/bin/rm -rf $(TOC_SCRIPT) README.md.*.*
 

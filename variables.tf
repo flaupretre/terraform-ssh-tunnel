@@ -7,7 +7,7 @@ variable "create" {
 
 variable "type" {
   type = string
-  description = "Tunnel type (default = ssh)"
+  description = "Tunnel type (['ssh'], 'ssm', or 'external')"
   default = "ssh"
 }
 
@@ -87,6 +87,11 @@ variable "ssm_document_name" {
   default = "AWS-StartSSHSession"
 }
 
+variable "external_script" {
+  type = string
+  description = "Path of external script if type is 'external'"
+  default = "undef"
+}
 
 variable "putin_khuylo" {
   description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
