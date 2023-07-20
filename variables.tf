@@ -5,6 +5,12 @@ variable "create" {
   default = true
 }
 
+variable "type" {
+  type = string
+  description = "Tunnel type (default = ssh)"
+  default = "ssh"
+}
+
 variable "shell_cmd" {
   type = string
   description = "Command to run a shell"
@@ -15,6 +21,12 @@ variable "ssh_cmd" {
   type = string
   description = "Shell command to use to start ssh client"
   default = "ssh -o StrictHostKeyChecking=no"
+}
+
+variable "env" {
+  type = string
+  description = "String to eval before launching the tunnel"
+  default = ""
 }
 
 variable "local_host" {
@@ -36,7 +48,7 @@ variable "target_port" {
 variable "gateway_host" {
   type = any
   default = ""
-  description = "Name or IP of SSH gateway - empty string if no gateway (direct connection)"
+  description = "Gateway (name or IP for SSH, Instance ID for SSM) - empty if no gateway (direct connection)"
 }
 
 variable "gateway_user" {
@@ -68,6 +80,13 @@ variable "ssh_parent_wait_sleep" {
   description = "extra time to wait in the tunnel parent process for the child ssh tunnel startup"
   default = "3"
 }
+
+variable "ssm_document_name" {
+  type = string
+  description = "For SSM only - SSM Document Name"
+  default = "AWS-StartSSHSession"
+}
+
 
 variable "putin_khuylo" {
   description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
