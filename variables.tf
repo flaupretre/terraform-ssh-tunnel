@@ -93,6 +93,30 @@ variable "external_script" {
   default = "undef"
 }
 
+variable "kubectl_cmd" {
+  type = string
+  description = "Alternate command for 'kubectl'"
+  default = "kubectl"
+}
+
+variable "kubectl_context" {
+  type = string
+  description = "Kubectl target context"
+  default = ""
+}
+
+variable "kubectl_namespace" {
+  type = string
+  description = "Kubectl target namespace"
+  default = ""
+}
+
+variable "kubectl_options" {
+  type = string
+  description = "Kubectl additional options"
+  default = ""
+}
+
 variable "putin_khuylo" {
   description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
   type        = bool

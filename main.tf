@@ -28,5 +28,9 @@ data external ssh_tunnel {
     env = var.env
     ssm_document_name = var.ssm_document_name
     external_script = var.external_script
+    kubectl_cmd = var.kubectl_cmd
+    kubectl_context = var.kubectl_context
+    kubectl_namespace = var.kubectl_namespace
+    kubectl_options = var.kubectl_options
   }
 }

@@ -1,36 +1,49 @@
-This terraform module allows to communicate with a resource via an SSH tunnel.
+This terraform module allows to communicate with a resource via a tunnel. A tunnel is a
+gateway providing a bidirectionnal connection between a 'public' area and a 'private'
+area. Terraform runs on a host located in the 'public ' area and uses the gateway to
+access a target host & port located in the 'private' area.
 
 It is used, for instance, to create and configure databases on AWS RDS instances.
-Creating RDS instances is easy, as it uses the AWS API, which is public but, creating
+Creating RDS instances is easy, as it uses the public AWS API, but creating
 databases is more complex because it requires connecting to the RDS instance which is,
-usually, connected to private subnets only.
-Running terraform on a host inside the AWS VPC can be a solution but generally too complex
+usually, accessible from private subnets only.
+Running terraform on a host inside the private area is a solution but it is quite complex
 to install and manage.
 
 An alternate solution is to access remote resources via
-an SSH tunnel via a bastion host. The steps are :
+a tunnel (aka 'bastion host'). The steps are :
 
-- You open an SSH connection to the bastion from your client (using the bastion
+- You open a secure connection from your client to a gateway host (using the gateway's
   public IP address).
-- and, then, the bastion host opens a connection to the target host/port using
-  its connection to the private subnets,
+- and, then, the gateway host opens a connection to the target host/port (using
+  private subnets).
+
+Initially, only SSH tunnels were supported, hence the module name. We now support
+the following gateways :
+- [SSH tunnel](https://www.ssh.com/academy/ssh/tunneling-example)
+- [AWS Systems Manager (SSM)](https://docs.aws.amazon.com/systems-manager/latest/userguide/)
+- [Kubernetes port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
+
+You can also provide your own shell script if your gateway is not supported yet.
 
 ---
 <!--ts-->
    * [Tunnel conditional creation](#tunnel-conditional-creation)
-   * [SSH command and options](#ssh-command-and-options)
    * [Target host name resolution](#target-host-name-resolution)
    * [Environment](#environment)
-   * [Multiple SSH gateways](#multiple-ssh-gateways)
-   * [SSM support](#ssm-support)
-   * [External - Using a not-yet-supported mechanism](#external---using-a-not-yet-supported-mechanism)
+   * [Available gateways](#available-gateways)
+      * [SSH](#ssh)
+         * [Multiple SSH gateways](#multiple-ssh-gateways)
+      * [AWS SSM](#aws-ssm)
+      * [Kubernetes port forwarding](#kubernetes-port-forwarding)
+      * [External](#external)
    * [Requirements](#requirements)
       * [Posix shell](#posix-shell)
       * [timeout](#timeout)
       * [nohup](#nohup)
    * [Limitations](#limitations)
       * [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
-   * [Example](#example)
+   * [Examples](#examples)
    * [Requirements](#requirements-1)
    * [Providers](#providers)
    * [Modules](#modules)
@@ -39,7 +52,7 @@ an SSH tunnel via a bastion host. The steps are :
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Thu Jul 20 12:33:09 UTC 2023 -->
+<!-- Added by: flaupretre, at: Fri Jul 21 07:37:24 UTC 2023 -->
 
 <!--te-->
 
@@ -52,14 +65,6 @@ to the target.
 
 This makes the module usable in a scenario where the fact that the connection
 requires a tunnel cannot be determined in advance and depends on input parameters.
-
-## SSH command and options
-
-By default, the module uses the 'ssh -o StrictHostKeyChecking=no' string to launch
-the SSH client. If you use a different SSH client name/path or
-if you want to add/remove options, you can modify this string by setting the
-'ssh_cmd' input variable.
-This may be used, for instance, to add a '-i' option and set the private key to use.
 
 ## Target host name resolution
 
@@ -77,7 +82,27 @@ If you to set and/or replace environment variables before creating the tunnel,
 you can provide a non-empty 'env' input variable. This string will be 'eval'uated
 before launching the command to create the tunnel. When using an SSM connection, for instance, it can be used to set the 'AWS_PROFILE' variable.
 
-## Multiple SSH gateways
+## Available gateways
+
+### SSH
+
+Initially, it was the only supported gateway. It remains the default.
+
+In order to use this gateway, you need to have a bastion host running some SSH server software. This host
+must be directly accessible from the host running terraform. It must also have a direct access to the
+target host/port.
+
+You cannot use passwords to open the SSH connection. So, every potential user must be registered on the
+bastion host along with the appropriate public key. In order to avoid this key management, you can also
+share a key between your users but keeping a shared secret secure is a complex task.
+
+By default, the module uses the 'ssh -o StrictHostKeyChecking=no' string to launch
+the SSH client. If you use a different SSH client name/path or
+if you want to add/remove options, you can modify this string by setting the
+'ssh_cmd' input variable.
+This may be used, for instance, to add a '-i' option and set the private key to use.
+
+#### Multiple SSH gateways
 
 Please also note that the module cannot
 be used to create a tunnel running through a set of several SSH gateways, each
@@ -86,14 +111,14 @@ next one. This is technically possible using the 'ProxyJump' feature introduced
 in OpenSSH v7.3 and the feature may be added in a future version, depending on user's
 demand (I personally don't need it yet).
 
-## SSM support
+### AWS SSM
 
 This feature is still alpha (it was introduced in v 1.14.0). So, don't hesitate to
 report any good or bad experience using it. Suggestions are welcome too.
 
 The feature is adapted from the [terraform-ssm-tunnel](https://github.com/littlejo/terraform-ssm-tunnel/tree/master) fork by [Joseph Ligier](https://github.com/littlejo). Many thanks to Joseph for this addition.
 
-If you're using AWS, you can also open a tunnel using AWS SSM ([AWS Systems
+If you're using AWS, you can open a tunnel using AWS SSM ([AWS Systems
 manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/)). In this case,
 a 'Session Manager SSH session' is opened from your desktop
 to an EC2 instance via the AWS API. This seesion is, then, connected with another
@@ -120,20 +145,46 @@ How to activate the SSM variant :
   'ec2-user' ('ubuntu' when using Ubuntu-based AMIs).
 - if needed, set the AWS_PROFILE environment variable using the 'env' input var.
 
-## External - Using a not-yet-supported mechanism
+### Kubernetes port forwarding
 
-The code can be extended to use a mechanism the module does not support yet. If you
-set the 'type' to 'external' and provide the path of a shell script as 'external_script',
-this script will be sourced by a shell interpreter to create the tunnel.
+This feature is still alpha (it was introduced in v 1.14.0). So, don't hesitate to
+report any good or bad experience using it. Suggestions are welcome too.
+
+In order to access a server running in a Kubernetes pod, you can use the 'kubectl' gateway. This gateway
+uses K8S port forwarding to open a bidirectionnal tunnel to the target server. Of course it requires the
+target server to expose at least one inbound port on a pod.
+
+This gateway is activated by setting the 'type' variable to 'kubectl'.
+
+The 'gateway_host' input variable has the same syntax as the 'kubectl port-forward' command argument : 'pod/xxx',
+'deployment/xxx', 'service/xxx'... Targeting a K8S service, if it exists, should be preferred to benefit
+from the K8S load-balancing features.
+
+The 'kubectl_context' and 'kubectl_namespace' input variables should be used to determine the target
+context and namespace. If it is not set, the
+current context and namespace (as set in your kube config file) will be used, which is probably
+not what you want. You can also fill the 'kubectl_options' variable with additional options to pass
+to the 'kubectl' command.
+
+The 'kubectl_cmd' variable can be set if you cannot use the default command ('kubectl').
+
+### External
+
+This feature is still alpha (it was introduced in v 1.14.0). So, don't hesitate to
+report any good or bad experience using it. Suggestions are welcome too.
+
+If the mechanism you want to use is not supported yet, you can provide the code for it.
+You just need to set the 'type' to 'external' and to provide the path of a shell script as 'external_script'.
+This script will be sourced by a shell interpreter to create the tunnel.
 
 You should use the existing
-scripts in the 'gateways subdirectory as examples to understand how to get the parameters.
+scripts in the 'gateways' subdirectory as examples to understand how to get the parameters.
 Your script must also set
 an environment variable named CPID. This must contain the PID of the
 process managing the tunnel.
 
-If it can interest other users, feel free to move it into the 'gateways'
-subdirectory and create a pull request.
+If other users may be interested, feel free to move it into the 'gateways'
+subdirectory, add the required documentation in the README.md file,  and submit a pull request.
 
 ## Requirements
 
@@ -173,7 +224,7 @@ When running terraform apply from a plan output this module does not work.
     terraform plan -input=false -out tf.plan
     terraform apply -input=false -auto-approve tf.plan
 
-## Example
+## Examples
 
 You may also be interested by the
 [terraform-ssh-tunnel-databases](https://github.com/flaupretre/terraform-ssh-tunnel-databases)
@@ -253,10 +304,14 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_create"></a> [create](#input\_create) | If false, do nothing and return target host | `bool` | `true` | no |
 | <a name="input_env"></a> [env](#input\_env) | String to eval before launching the tunnel | `string` | `""` | no |
-| <a name="input_external_script"></a> [external\_script](#input\_external\_script) | Path of external script if type == 'external' | `string` | `"undef"` | no |
+| <a name="input_external_script"></a> [external\_script](#input\_external\_script) | Path of external script if type is 'external' | `string` | `"undef"` | no |
 | <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Gateway (name or IP for SSH, Instance ID for SSM) - empty if no gateway (direct connection) | `any` | `""` | no |
 | <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port) | Gateway port | `number` | `22` | no |
 | <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on SSH gateway (default = empty string = current username) | `any` | `""` | no |
+| <a name="input_kubectl_cmd"></a> [kubectl\_cmd](#input\_kubectl\_cmd) | Alternate command for 'kubectl' | `string` | `"kubectl"` | no |
+| <a name="input_kubectl_context"></a> [kubectl\_context](#input\_kubectl\_context) | Kubectl target context | `string` | `""` | no |
+| <a name="input_kubectl_namespace"></a> [kubectl\_namespace](#input\_kubectl\_namespace) | Kubectl target namespace | `string` | `""` | no |
+| <a name="input_kubectl_options"></a> [kubectl\_options](#input\_kubectl\_options) | Kubectl additional options | `string` | `""` | no |
 | <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use the '127.0.0.1' default value | `string` | `"127.0.0.1"` | no |
 | <a name="input_putin_khuylo"></a> [putin\_khuylo](#input\_putin\_khuylo) | Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo! | `bool` | `true` | no |
 | <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Command to run a shell | `string` | `"bash"` | no |

@@ -33,6 +33,10 @@ if [ -z "$MPID" ] ; then
   export ENV="`echo $query | sed -e 's/^.*\"env\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
   export SSM_DOCUMENT_NAME="`echo $query | sed -e 's/^.*\"ssm_document_name\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
   export EXTERNAL_SCRIPT="`echo $query | sed -e 's/^.*\"external_script\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
+  export KUBECTL_CMD="`echo $query | sed -e 's/^.*\"kubectl_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
+  export KUBECTL_CONTEXT="`echo $query | sed -e 's/^.*\"kubectl_context\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
+  export KUBECTL_NAMESPACE="`echo $query | sed -e 's/^.*\"kubectl_namespace\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
+  export KUBECTL_OPTIONS="`echo $query | sed -e 's/^.*\"kubectl_options\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g'`"
 
   if [ "X$CREATE" = X -o "X$GATEWAY_HOST" = X ] ; then
     # No tunnel - connect directly to target host
