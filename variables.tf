@@ -1,59 +1,37 @@
 
+variable "putin_khuylo" {
+  description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
+  type        = bool
+  default     = true
+}
+
+variable "aws_profile" {
+  type = string
+  description = "AWS SSM only - AWS profile"
+  default = ""
+}
+
 variable "create" {
   type = bool
   description = "If false, do nothing and return target host"
   default = true
 }
 
-variable "type" {
-  type = string
-  description = "Tunnel type (['ssh'], 'ssm', or 'external')"
-  default = "ssh"
-}
-
-variable "shell_cmd" {
-  type = string
-  description = "Command to run a shell"
-  default = "bash"
-}
-
-variable "ssh_cmd" {
-  type = string
-  description = "Shell command to use to start ssh client"
-  default = "ssh -o StrictHostKeyChecking=no"
-}
-
 variable "env" {
-  type = string
-  description = "String to eval before launching the tunnel"
-  default = ""
+  type = any
+  description = "An array of name -> value environment variables"
+  default = {}
 }
 
-variable "local_host" {
+variable "external_script" {
   type = string
-  description = "Local host name or IP. Set only if you cannot use the '127.0.0.1' default value"
-  default="127.0.0.1"
-}
-
-variable "target_host" {
-  type = string
-  description = "The target host. Name will be resolved by gateway"
-}
-
-variable "target_port" {
-  type = number
-  description = "Target port number"
+  description = "External only - Path of shell script to run to open the tunnel"
+  default = "undef"
 }
 
 variable "gateway_host" {
   type = any
-  default = ""
-  description = "Gateway (name or IP for SSH, Instance ID for SSM) - empty if no gateway (direct connection)"
-}
-
-variable "gateway_user" {
-  type = any
-  description = "User to use on SSH gateway (default = empty string = current username)"
+  description = "Gateway (syntax and meaning depend on gateway type - empty if no gateway (direct connection)"
   default = ""
 }
 
@@ -63,39 +41,15 @@ variable "gateway_port" {
   default = 22
 }
 
-variable "timeout" {
-  type = string
-  description = "Timeout value ensures tunnel won't remain open forever"
-  default = "30m"
-}
-
-variable "ssh_tunnel_check_sleep" {
-  type = string
-  description = "extra time to wait for ssh tunnel to connect"
-  default = "0"
-}
-
-variable "ssh_parent_wait_sleep" {
-  type = string
-  description = "extra time to wait in the tunnel parent process for the child ssh tunnel startup"
-  default = "3"
-}
-
-variable "ssm_document_name" {
-  type = string
-  description = "For SSM only - SSM Document Name"
-  default = "AWS-StartSSHSession"
-}
-
-variable "external_script" {
-  type = string
-  description = "Path of external script if type is 'external'"
-  default = "undef"
+variable "gateway_user" {
+  type = any
+  description = "User to use on gateway (default for SSH : current user)"
+  default = ""
 }
 
 variable "kubectl_cmd" {
   type = string
-  description = "Alternate command for 'kubectl'"
+  description = "Alternate command for 'kubectl' (including options)"
   default = "kubectl"
 }
 
@@ -111,14 +65,67 @@ variable "kubectl_namespace" {
   default = ""
 }
 
-variable "kubectl_options" {
+variable "local_host" {
   type = string
-  description = "Kubectl additional options"
+  description = "Local host name or IP. Set only if you cannot use '127.0.0.1'"
+  default="127.0.0.1"
+}
+
+variable "parent_wait_sleep" {
+  type = string
+  description = "extra time to wait in the parent process for the child to create the tunnel"
+  default = "3"
+}
+
+variable "shell_cmd" {
+  type = string
+  description = "Alternate command to launch a Posix shell"
+  default = "bash"
+}
+
+variable "ssh_cmd" {
+  type = string
+  description = "Alternate command to launch the SSH client (including options)"
+  default = "ssh -o StrictHostKeyChecking=no"
+}
+
+variable "ssm_document_name" {
+  type = string
+  description = "AWS SSM only - SSM Document Name"
+  default = "AWS-StartSSHSession"
+}
+
+variable "ssm_options" {
+  type = string
+  description = "AWS SSM only - Options to add to the 'aws ssm start-session' command line"
   default = ""
 }
 
-variable "putin_khuylo" {
-  description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
-  type        = bool
-  default     = true
+variable "target_host" {
+  type = string
+  description = "Target host"
 }
+
+variable "target_port" {
+  type = number
+  description = "Target port number"
+}
+
+variable "timeout" {
+  type = string
+  description = "Timeout value ensures tunnel won't remain open forever - do not change"
+  default = "30m"
+}
+
+variable "tunnel_check_sleep" {
+  type = string
+  description = "extra time to wait for the tunnel to become available"
+  default = "0"
+}
+
+variable "type" {
+  type = string
+  description = "Gateway type : 'ssh' (default), 'ssm', 'kubectl', or 'external'"
+  default = "ssh"
+}
+
