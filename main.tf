@@ -1,8 +1,13 @@
 data "external" "free_port" {
+  count = ((var.local_port == 0) ? 1 : 0)
   program = [
     var.shell_cmd,
     "${path.module}/get-open-port.sh"
   ]
+}
+
+locals {
+  local_port = ((var.local_port == 0) ? data.external.free_port[0].result.port : var.local_port)
 }
 
 data "external" "ssh_tunnel" {
@@ -22,7 +27,7 @@ data "external" "ssh_tunnel" {
     kubectl_context    = var.kubectl_context
     kubectl_namespace  = var.kubectl_namespace
     local_host         = var.local_host
-    local_port         = data.external.free_port.result.port
+    local_port         = local.local_port
     parent_wait_sleep  = var.parent_wait_sleep
     shell_cmd          = var.shell_cmd
     ssh_cmd            = var.ssh_cmd

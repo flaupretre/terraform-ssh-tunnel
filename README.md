@@ -32,6 +32,7 @@ be suitable for production use yet. That's why your help is greatly appreciated 
       * [Goggle IAP](#goggle-iap)
       * [Kubernetes port forwarding](#kubernetes-port-forwarding)
       * [External](#external)
+   * [Module output](#module-output)
    * [Tunnel conditional creation](#tunnel-conditional-creation)
    * [Environment](#environment)
    * [Requirements](#requirements)
@@ -53,7 +54,7 @@ be suitable for production use yet. That's why your help is greatly appreciated 
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Sat Jul 22 16:15:06 UTC 2023 -->
+<!-- Added by: flaupretre, at: Sat Jul 22 17:18:52 UTC 2023 -->
 
 <!--te-->
 
@@ -181,6 +182,21 @@ process managing the tunnel.
 
 If other users may be interested, feel free to move it into the 'gateways'
 subdirectory, add the required documentation in the README.md file,  and submit a pull request.
+
+## Module output
+
+The module returns two values : 'host' and 'port'. These values define the tunnel's
+'local' endpoint. When you connect a subsequent provider to this endpoint, it will
+transparently access the target resource. Obviously, each remote resource corresponds
+to a separate tunnel. If you're accessing multiple remote resources, you need to
+create one tunnel per resource, so one module call per resource and, then, one
+provider instance per tunnel. For instance, accessing multiple 'private' RDS
+instances requires one tunnel per RDS instance and each module call will output a different 'port' value.
+
+By default, the local host and port values are automatically determined, automatically choosing an unused port on the
+host where terraform is running. In special cases and if you know what you're doing, you can
+force these values via the 'local_host' and 'local_port' input variables. Once again, do this at your own risk,
+the default behavior should be fine in most cases.
 
 ## Tunnel conditional creation
 
@@ -361,6 +377,7 @@ No modules.
 | <a name="input_kubectl_context"></a> [kubectl\_context](#input\_kubectl\_context) | Kubectl target context | `string` | `""` | no |
 | <a name="input_kubectl_namespace"></a> [kubectl\_namespace](#input\_kubectl\_namespace) | Kubectl target namespace | `string` | `""` | no |
 | <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use '127.0.0.1' | `string` | `"127.0.0.1"` | no |
+| <a name="input_local_port"></a> [local\_port](#input\_local\_port) | Local port to use. Default (0) causes the system to find an unused port number | `number` | `"0"` | no |
 | <a name="input_parent_wait_sleep"></a> [parent\_wait\_sleep](#input\_parent\_wait\_sleep) | extra time to wait in the parent process for the child to create the tunnel | `string` | `"3"` | no |
 | <a name="input_putin_khuylo"></a> [putin\_khuylo](#input\_putin\_khuylo) | Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo! | `bool` | `true` | no |
 | <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Alternate command to launch a Posix shell | `string` | `"bash"` | no |

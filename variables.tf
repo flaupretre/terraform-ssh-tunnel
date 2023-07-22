@@ -71,6 +71,12 @@ variable "local_host" {
   default     = "127.0.0.1"
 }
 
+variable "local_port" {
+  type        = number
+  description = "Local port to use. Default (0) causes the system to find an unused port number"
+  default     = "0"
+}
+
 variable "parent_wait_sleep" {
   type        = string
   description = "extra time to wait in the parent process for the child to create the tunnel"
