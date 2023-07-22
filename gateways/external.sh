@@ -4,7 +4,7 @@
 #----------------------------------------------------------------------------
 
 if [ -f "$EXTERNAL_SCRIPT" ]; then
-  source "$EXTERNAL_SCRIPT"
+  . "$EXTERNAL_SCRIPT"
 else
   echo "$EXTERNAL_SCRIPT: file not found"
   exit 1

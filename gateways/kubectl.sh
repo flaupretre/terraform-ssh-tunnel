@@ -11,6 +11,6 @@ cmd="$KUBECTL_CMD"
 [ -n "$KUBECTL_CONTEXT" ] && cmd="$cmd --context=$KUBECTL_CONTEXT"
 [ -n "$KUBECTL_NAMESPACE" ] && cmd="$cmd --namespace=$KUBECTL_NAMESPACE"
 
-$cmd port-forward "$GATEWAY_HOST" $LOCAL_PORT:$TARGET_PORT &
+$cmd port-forward "$GATEWAY_HOST" "$LOCAL_PORT:$TARGET_PORT" &
 
 CPID=$!

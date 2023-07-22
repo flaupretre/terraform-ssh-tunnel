@@ -13,8 +13,8 @@ gw="$GATEWAY_HOST"
 $SSH_CMD \
   -o ProxyCommand "aws ssm start-session $SSM_OPTIONS --target %h --document-name $SSM_DOCUMENT_NAME --parameters 'portNumber=%p'" \
   -N \
-  -L $LOCAL_HOST:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT \
-  -p $GATEWAY_PORT \
-   $gw &
+  -L "$LOCAL_HOST:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT" \
+  -p "$GATEWAY_PORT" \
+   "$gw" &
 
 CPID=$!

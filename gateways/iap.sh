@@ -15,8 +15,8 @@ gw="$GATEWAY_HOST"
 
 $GCLOUD_CMD compute ssh \
   --tunnel-through-iap \
-  --ssh-key-expire-after $TIMEOUT \
+  --ssh-key-expire-after "$TIMEOUT" \
   --ssh-flag="-N -L $LOCAL_HOST:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT" \
-  $gw &
+  "$gw" &
 
 CPID=$!

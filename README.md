@@ -1,4 +1,4 @@
-This terraform module allows to communicate with a resource via a tunnel. A tunnel (aka <i>gateway</i>, aka <i>bastion host</i>)
+This terraform module allows to manage a 'remote' resource via a tunnel. A tunnel (aka <i>gateway</i>, aka <i>bastion host</i>)
 provides a bidirectionnal connection between a 'public' area and a 'private'
 area. Terraform runs on a host located in the 'public ' area and uses the gateway to
 access a target host & port located in the 'private' area.
@@ -36,8 +36,8 @@ be suitable for production use yet. That's why your help is greatly appreciated 
    * [Environment](#environment)
    * [Requirements](#requirements)
       * [Posix shell](#posix-shell)
-      * [timeout](#timeout)
-      * [nohup](#nohup)
+      * ['timeout' utility](#timeout-utility)
+      * ['nohup' utility](#nohup-utility)
       * [SSH client](#ssh-client)
       * [AWS CLI](#aws-cli)
       * [Kubectl](#kubectl)
@@ -53,7 +53,7 @@ be suitable for production use yet. That's why your help is greatly appreciated 
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Fri Jul 21 18:59:27 UTC 2023 -->
+<!-- Added by: flaupretre, at: Sat Jul 22 16:15:06 UTC 2023 -->
 
 <!--te-->
 
