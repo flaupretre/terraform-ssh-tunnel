@@ -1,16 +1,11 @@
 # K8S kubectl port forwarding
 #
-# Parameters :
-#   GATEWAY_HOST: a string usable as port forwarding target (pod/xxx, service/xxx, deployment/xxx...)
-#   KUBECTL_CMD: Alternate command to run kubectl (default: 'kubectl')
-#   KUBECTL_CONTEXT: Context name (as defined in kubectl config file, default: current context)
-#   KUBECTL_NAMESPACE: Kubernetes namespace (default: current namespace)
 #----------------------------------------------------------------------------
 
-cmd="$KUBECTL_CMD"
-[ -n "$KUBECTL_CONTEXT" ] && cmd="$cmd --context=$KUBECTL_CONTEXT"
-[ -n "$KUBECTL_NAMESPACE" ] && cmd="$cmd --namespace=$KUBECTL_NAMESPACE"
+cmd="$TUNNEL_KUBECTL_CMD"
+[ -n "$TUNNEL_KUBECTL_CONTEXT" ] && cmd="$cmd --context=$TUNNEL_KUBECTL_CONTEXT"
+[ -n "$TUNNEL_KUBECTL_NAMESPACE" ] && cmd="$cmd --namespace=$TUNNEL_KUBECTL_NAMESPACE"
 
-$cmd port-forward "$GATEWAY_HOST" "$LOCAL_PORT:$TARGET_PORT" &
+$cmd port-forward "$TUNNEL_GATEWAY_HOST" "$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_PORT" &
 
-CPID=$!
+TUNNEL_PID=$!

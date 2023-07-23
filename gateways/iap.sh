@@ -10,13 +10,13 @@
 # warmly appreciated.
 #----------------------------------------------------------------------------
 
-gw="$GATEWAY_HOST"
-[ "X$GATEWAY_USER" = X ] || gw="$GATEWAY_USER@$GATEWAY_HOST"
+gw="$TUNNEL_GATEWAY_HOST"
+[ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
-$GCLOUD_CMD compute ssh \
+$TUNNEL_GCLOUD_CMD compute ssh \
   --tunnel-through-iap \
-  --ssh-key-expire-after "$TIMEOUT" \
-  --ssh-flag="-N -L $LOCAL_HOST:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT -p $GATEWAY_PORT" \
+  --ssh-key-expire-after "$TUNNEL_TIMEOUT" \
+  --ssh-flag="-N -L $TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT -p $TUNNEL_GATEWAY_PORT" \
   "$gw" &
 
-CPID=$!
+TUNNEL_PID=$!

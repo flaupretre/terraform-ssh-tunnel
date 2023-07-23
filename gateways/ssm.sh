@@ -3,18 +3,16 @@
 # management. The EC2 instance does not need to have a public address as
 # connection is done through the AWS API.
 #
-# Parameters :
-#   GATEWAY_HOST: The instance ID of the gateway instance
 #----------------------------------------------------------------------------
 
-gw="$GATEWAY_HOST"
-[ "X$GATEWAY_USER" = X ] || gw="$GATEWAY_USER@$GATEWAY_HOST"
+gw="$TUNNEL_GATEWAY_HOST"
+[ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
-$SSH_CMD \
-  -o ProxyCommand "aws ssm start-session $SSM_OPTIONS --target %h --document-name $SSM_DOCUMENT_NAME --parameters 'portNumber=%p'" \
+$TUNNEL_SSH_CMD \
+  -o ProxyCommand "aws ssm start-session $TUNNEL_SSM_OPTIONS --target %h --document-name $TUNNEL_SSM_DOCUMENT_NAME --parameters 'portNumber=%p'" \
   -N \
-  -L "$LOCAL_HOST:$LOCAL_PORT:$TARGET_HOST:$TARGET_PORT" \
-  -p "$GATEWAY_PORT" \
+  -L "$TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT" \
+  -p "$TUNNEL_GATEWAY_PORT" \
    "$gw" &
 
-CPID=$!
+TUNNEL_PID=$!

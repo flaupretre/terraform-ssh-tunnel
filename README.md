@@ -1,3 +1,19 @@
+Note: This is version 2, a major version including a lot of new features, the most important addition being the support
+of several new tunnel mechanisms in addition to SSH. Compatibility should be preserved for terraform code already using
+version 1 : new variables were added but the former ones are usable as-is and the module output does not change.
+
+Some of these additions are adapted from the multiple forks of this project. I had a look to the changes committed
+in these forks and integrated the ideas I found interesting. Github is not the ideal place to ask permission for this. So,
+if you think I shouldn't have taken an idea from your code without telling you, feel free to contact me.
+Once again, thanks to all who give time and energy to the community.
+
+As some of this code was not tested thoroughly and, sometimes, not tested at all, please consider SSH tunnels to be
+the only gateway ready for production purpose. If you experiment another one, I'm very interested by the experience
+you may have, positive or negative. Of course, comments and suggestions are always welcome.
+
+----
+
+
 This terraform module allows to manage a 'remote' resource via a tunnel. A tunnel (aka <i>gateway</i>, aka <i>bastion host</i>)
 provides a bidirectionnal connection between a 'public' area and a 'private'
 area. Terraform runs on a host located in the 'public ' area and uses the gateway to
@@ -54,7 +70,7 @@ be suitable for production use yet. That's why your help is greatly appreciated 
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Sat Jul 22 17:18:52 UTC 2023 -->
+<!-- Added by: flaupretre, at: Sun Jul 23 10:47:39 UTC 2023 -->
 
 <!--te-->
 
@@ -96,9 +112,6 @@ without having to convert it to an IP address first.
 
 ### AWS SSM
 
-This feature is still alpha (it was introduced in v 2.0.0). So, don't hesitate to
-report any good or bad experience using it. Suggestions are welcome too.
-
 The feature is adapted from the [terraform-ssm-tunnel](https://github.com/littlejo/terraform-ssm-tunnel/tree/master) fork by [Joseph Ligier](https://github.com/littlejo). Many thanks to Joseph for this addition.
 
 If you're using AWS, you can open a tunnel using AWS SSM ([AWS Systems
@@ -115,7 +128,7 @@ The benefits of using SSM, compared to a bare SSH tunnel, are :
 
 Note that, since all traffic goes through the AWS API, this can be used on a fully-private platform (a platform without public subnets).
 
-Of course, this requires [the AWS SSM agent to be installed and configured
+Of course, this requires [an AWS SSM agent to be installed and configured
 correctly on the EC2 gateway](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-ssh). SSM agent version must be 2.3.672.0 or later.
 
 How to activate the SSM variant :
@@ -132,11 +145,7 @@ How to activate the SSM variant :
 ### Goggle IAP
 
 This feature is EXPERIMENTAL and was never tested. You use it under your total responsibility.
-No assumption should be made on the security level it provides.
-
-That's why, if you try it, we really need your return,
-even if (especially if) you meet issues. Please register issues about your experience with this gateway, even
-if everything went fine in your environment. This gateway cannot get out its experimental status without your help.
+Among others, no assumption should be made on the security level it provides.
 
 This gateway uses the Google Identity-Aware Proxy (IAP) feature to create a tunnel to a private target host and port.
 
@@ -145,9 +154,6 @@ it does not require this instance to expose anything on the public networks. Act
 between the Google internal IAP hosts and the target host & port, going through the bastion VM.
 
 ### Kubernetes port forwarding
-
-This feature is still alpha (it was introduced in v 2.0.0). So, don't hesitate to
-report any good or bad experience using it. Suggestions are welcome too.
 
 In order to access a server running in a Kubernetes pod, you can use the 'kubectl' gateway. This gateway
 uses Kubernetes 'port forwarding' mechanism to create a bidirectionnal tunnel to the target server.
@@ -167,18 +173,15 @@ not what you want. You can also enrich the 'kubectl_cmd' variable with additiona
 
 ### External
 
-This feature is still alpha (it was introduced in v 2.0.0). So, don't hesitate to
-report any good or bad experience using it. Suggestions are welcome too.
+If a tunnel mechanism is not supported yet, you can provide the code for it.
+Just set 'type' to 'external', write a shell script file and set its path as 'external_script'.
+The script will be sourced by a shell interpreter in order to create the tunnel.
 
-If the mechanism you want to use is not supported yet, you can provide the code for it.
-You just need to set the 'type' to 'external' and to provide the path of a shell script as 'external_script'.
-This script will be sourced by a shell interpreter to create the tunnel.
-
-You should use the existing
+Refer to the existing
 scripts in the 'gateways' subdirectory as examples to understand how to get the parameters.
 Your script must also set
-an environment variable named CPID. This must contain the PID of the
-process managing the tunnel.
+an environment variable named TUNNEL_PID. This must contain the PID of the
+process handling the tunnel.
 
 If other users may be interested, feel free to move it into the 'gateways'
 subdirectory, add the required documentation in the README.md file,  and submit a pull request.
