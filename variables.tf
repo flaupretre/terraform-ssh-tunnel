@@ -67,13 +67,13 @@ variable "kubectl_namespace" {
 
 variable "local_host" {
   type        = string
-  description = "Local host name or IP. Set only if you cannot use '127.0.0.1'"
+  description = "Local host name or IP. Set only if you cannot use default value"
   default     = "127.0.0.1"
 }
 
 variable "local_port" {
   type        = number
-  description = "Local port to use. Default (0) causes the system to find an unused port number"
+  description = "Local port to use. Default causes the system to find an unused port number"
   default     = "0"
 }
 
@@ -92,7 +92,7 @@ variable "shell_cmd" {
 variable "ssh_cmd" {
   type        = string
   description = "Alternate command to launch the SSH client (including options)"
-  default     = "ssh -o StrictHostKeyChecking=no"
+  default     = "ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 }
 
 variable "ssm_document_name" {
@@ -131,7 +131,7 @@ variable "tunnel_check_sleep" {
 
 variable "type" {
   type        = string
-  description = "Gateway type : 'ssh' (default), 'ssm', 'kubectl', or 'external'"
+  description = "Gateway type"
   default     = "ssh"
 }
 

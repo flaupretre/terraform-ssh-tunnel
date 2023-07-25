@@ -13,7 +13,6 @@ you may have, positive or negative. Of course, comments and suggestions are alwa
 
 ----
 
-
 This terraform module allows to manage a 'remote' resource via a tunnel. A tunnel (aka <i>gateway</i>, aka <i>bastion host</i>)
 provides a bidirectionnal connection between a 'public' area and a 'private'
 area. Terraform runs on a host located in the 'public ' area and uses the gateway to
@@ -24,19 +23,18 @@ Creating RDS instances is easy, as it uses the public AWS API, but creating
 databases is more complex because it requires connecting to the RDS instance which,
 usually, is accessible from private subnets only.
 
-Running terraform on a host inside the private area is a possible solution but generally too complex
-to install and manage. Opening a temporary tunnel to the target is much easier.
+Running terraform on a host inside the private area is a possible solution, often used by Terraform automation software like [Atlantis](https://www.runatlantis.io/) but generally too complex
+to install and manage. It also does not allow accessing more than one private areas from
+a single location. So, for a lot of users, using tunnels is the best solution.
 
-Initially, only SSH tunnels were supported, hence the module name. We now support :
+Initially, only SSH tunnels were supported, hence the module name. Version 2 added suport for other tunnel mechanisms. So, we now support :
+
 - [SSH tunnels](https://www.ssh.com/academy/ssh/tunneling-example)
 - [AWS Systems Manager (SSM)](https://docs.aws.amazon.com/systems-manager/latest/userguide/)
 - [Google IAP](https://cloud.google.com/iap/docs/using-tcp-forwarding)
 - [Kubernetes port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
 
 You can also provide your own shell script if your gateway is not supported yet.
-
-Note that, except for bare SSH tunnels, other gateways were introduced in v 2.0.0 and may not
-be suitable for production use yet. That's why your help is greatly appreciated to test and validate them.
 
 ---
 <!--ts-->
@@ -62,6 +60,8 @@ be suitable for production use yet. That's why your help is greatly appreciated 
    * [Limitations](#limitations)
       * [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
    * [Examples](#examples)
+   * [To do](#to-do)
+      * [Add support for Azure bastion host tunnels](#add-support-for-azure-bastion-host-tunnels)
    * [Requirements](#requirements-1)
    * [Providers](#providers)
    * [Modules](#modules)
@@ -70,7 +70,7 @@ be suitable for production use yet. That's why your help is greatly appreciated 
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Sun Jul 23 10:47:39 UTC 2023 -->
+<!-- Added by: flaupretre, at: Tue Jul 25 12:09:57 UTC 2023 -->
 
 <!--te-->
 
@@ -88,11 +88,10 @@ You cannot use passwords to open the SSH connection. So, every potential user mu
 bastion host along with the appropriate public key. In order to avoid this key management, an alternative
 is to share a key between authorized users but keeping a shared secret secure is also a complex task.
 
-By default, the module uses the 'ssh -o StrictHostKeyChecking=no' string to launch
-the SSH client. If you use a different SSH client name/path or
-if you want to add/remove options, you can modify this string by setting the
-'ssh_cmd' input variable.
-This may be used, for instance, to add a '-i' option and set the private key to use.
+See below the default value for the 'ssh_cmd' input variable. These are the command
+and options used by default to launch the SSH client. You can change them if the default value does not
+correspond to your environment or if you need specific options to be added to the
+command line. This can be needed, for instance, to sspecify the path of the private key to use.
 
 #### Using multiple SSH gateways (ProxyJump)
 
@@ -100,8 +99,7 @@ Please note that the module cannot
 be used to create a tunnel running through a set of several SSH gateways, each
 one opening an SSH connection to the
 next one. This is technically possible using the 'ProxyJump' feature introduced
-in OpenSSH v7.3 and the feature may be added in a future version, depending on user's
-demand (I personally don't need it yet).
+in OpenSSH v7.3 and the feature might appear in a future version if there's a real user's demand.
 
 #### Target host name resolution
 
@@ -343,6 +341,17 @@ permissions.
       provider = mysql.tunnel
       ....
 
+## To do
+
+If you want to contribute to the project, here are somme ideas and suggestions.
+
+### Add support for Azure bastion host tunnels
+
+[This document](https://learn.microsoft.com/en-us/cli/azure/network/bastion?view=azure-cli-latest)
+gives information about Azure bastion hosts. These can be used as gateways to open a CLI connection
+to a target virtual machine using the [az](https://learn.microsoft.com/fr-fr/cli/azure/) CLI command.
+I don't know if it can connect to service like DB instances.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -379,19 +388,19 @@ No modules.
 | <a name="input_kubectl_cmd"></a> [kubectl\_cmd](#input\_kubectl\_cmd) | Alternate command for 'kubectl' (including options) | `string` | `"kubectl"` | no |
 | <a name="input_kubectl_context"></a> [kubectl\_context](#input\_kubectl\_context) | Kubectl target context | `string` | `""` | no |
 | <a name="input_kubectl_namespace"></a> [kubectl\_namespace](#input\_kubectl\_namespace) | Kubectl target namespace | `string` | `""` | no |
-| <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use '127.0.0.1' | `string` | `"127.0.0.1"` | no |
-| <a name="input_local_port"></a> [local\_port](#input\_local\_port) | Local port to use. Default (0) causes the system to find an unused port number | `number` | `"0"` | no |
+| <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use default value | `string` | `"127.0.0.1"` | no |
+| <a name="input_local_port"></a> [local\_port](#input\_local\_port) | Local port to use. Default causes the system to find an unused port number | `number` | `"0"` | no |
 | <a name="input_parent_wait_sleep"></a> [parent\_wait\_sleep](#input\_parent\_wait\_sleep) | extra time to wait in the parent process for the child to create the tunnel | `string` | `"3"` | no |
 | <a name="input_putin_khuylo"></a> [putin\_khuylo](#input\_putin\_khuylo) | Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo! | `bool` | `true` | no |
 | <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Alternate command to launch a Posix shell | `string` | `"bash"` | no |
-| <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Alternate command to launch the SSH client (including options) | `string` | `"ssh -o StrictHostKeyChecking=no"` | no |
+| <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Alternate command to launch the SSH client (including options) | `string` | `"ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"` | no |
 | <a name="input_ssm_document_name"></a> [ssm\_document\_name](#input\_ssm\_document\_name) | AWS SSM only - SSM Document Name | `string` | `"AWS-StartSSHSession"` | no |
 | <a name="input_ssm_options"></a> [ssm\_options](#input\_ssm\_options) | AWS SSM only - Options to add to the 'aws ssm start-session' command line | `string` | `""` | no |
 | <a name="input_target_host"></a> [target\_host](#input\_target\_host) | Target host | `string` | n/a | yes |
 | <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
 | <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel won't remain open forever - do not change | `string` | `"30m"` | no |
 | <a name="input_tunnel_check_sleep"></a> [tunnel\_check\_sleep](#input\_tunnel\_check\_sleep) | extra time to wait for the tunnel to become available | `string` | `"0"` | no |
-| <a name="input_type"></a> [type](#input\_type) | Gateway type : 'ssh' (default), 'ssm', 'kubectl', or 'external' | `string` | `"ssh"` | no |
+| <a name="input_type"></a> [type](#input\_type) | Gateway type | `string` | `"ssh"` | no |
 
 ## Outputs
 
