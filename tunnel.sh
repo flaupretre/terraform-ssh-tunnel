@@ -4,6 +4,30 @@ ret=0
 
 #---
 
+function ps_is_busybox()
+{
+[ "$(readlink /bin/ps)" = "/bin/busybox" ]
+}
+#---
+
+function process_is_up()
+{
+  local pid ret
+
+  pid="$1"
+  if ps_is_busybox ; then
+    ps -o pid | awk '{ print $1 }' | grep "^$pid\$" >/dev/null 2>&1
+    ret=$?
+  else
+    ps -p "$pid" >/dev/null 2>&1
+    ret=$?
+  fi
+
+  return $ret
+}
+
+#---
+
 if [ -z "$TUNNEL_TF_PID" ] ; then
   if [ -n "$TUNNEL_DEBUG" ] ; then
     exec 2>/tmp/t1.$$
@@ -81,7 +105,8 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   echo "{ \"host\": \"$cnx_host\",  \"port\": \"$cnx_port\" }"
 
   if [ -n "$do_tunnel" ] ; then
-    if [ "$(readlink /bin/ls)" = "/bin/busybox" ]; then
+
+    if ps_is_busybox ; then
         p=$PPID
     else
         p=$(ps p $PPID -o "ppid=")
@@ -92,7 +117,7 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
     # A little time for the SSH tunnel process to start or fail
     sleep "$TUNNEL_PARENT_WAIT_SLEEP"
     # If the child process does not exist anymore after this delay, report failure
-    if ! ps -p "$TUNNEL_CHILD_PID" >/dev/null 2>&1 ; then
+    if ! process_is_up "$TUNNEL_CHILD_PID" ; then
       echo "Child process ($TUNNEL_CHILD_PID) failure - Aborting" >&2
       echo "Child diagnostics follow:" >&2
       cat "$clog" >&2
@@ -127,12 +152,12 @@ else
   sleep "$TUNNEL_CHECK_SLEEP"
 
   while true ; do
-    if ! ps -p "$TUNNEL_PID" >/dev/null 2>&1 ; then
+    if ! process_is_up "$TUNNEL_PID" ; then
       echo "SSH process ($TUNNEL_PID) failure - Aborting" >&2
       [ -n "$TUNNEL_TODELETE" ] && /bin/rm -rf $TUNNEL_TODELETE
       exit 1
     fi
-    ps -p "$TUNNEL_TF_PID" >/dev/null 2>&1 || break
+    process_is_up "$TUNNEL_TF_PID" || break
     sleep 1
   done
 
