@@ -18,7 +18,7 @@ data "external" "ssh_tunnel" {
   query = {
     aws_profile        = var.aws_profile
     create             = ((var.create && var.putin_khuylo) ? "y" : "")
-    env                = join("\n", [for n, v in var.env : "export ${n}=\"${replace("\"", "\\\"", v)}\""])
+    env                = join("\n", [for n, v in var.env : "export ${n}=\"${replace(v, "\"", "\\\"")}\""])
     external_script    = var.external_script
     gateway_host       = var.gateway_host
     gateway_port       = var.gateway_port
