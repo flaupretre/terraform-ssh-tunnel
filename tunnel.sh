@@ -4,13 +4,13 @@ ret=0
 
 #---
 
-function ps_is_busybox()
+ps_is_busybox()
 {
 [ "$(readlink /bin/ps)" = "/bin/busybox" ]
 }
 #---
 
-function process_is_up()
+process_is_up()
 {
   local pid ret
 
