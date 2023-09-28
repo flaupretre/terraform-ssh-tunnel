@@ -109,7 +109,7 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
     if ps_is_busybox ; then
         p=$PPID
     else
-        p=$(ps p $PPID -o "ppid=")
+        p=$(ps p $PPID -o "ppid=" | sed 's/ //g')
     fi
     clog=$(mktemp)
     nohup timeout "$TUNNEL_TIMEOUT" "$TUNNEL_SHELL_CMD" "$TUNNEL_ABSPATH/tunnel.sh" "$p" <&- >&- 2>"$clog" &
