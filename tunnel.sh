@@ -84,11 +84,18 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   TUNNEL_TYPE="$(echo "$query" | sed -e 's/^.*\"type\": *\"//' -e 's/\".*$//g')"
   export TUNNEL_TYPE
 
+
   # Set AWS_PROFILE only if var is not empty
   profile="$(echo "$query" | sed -e 's/^.*\"aws_profile\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   if [ -n "$profile" ] ; then
     AWS_PROFILE="$profile"
     export AWS_PROFILE
+  fi
+
+  role="$(echo "$query" | sed -e 's/^.*\"aws_assume_role\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  if [ -n "$role" ] ; then
+    AWS_ASSUME_ROLE="$role"
+    export AWS_ASSUME_ROLE
   fi
 
   if [ "X$TUNNEL_CREATE" = X -o "X$TUNNEL_GATEWAY_HOST" = X ] ; then

@@ -38,36 +38,36 @@ You can also provide your own shell script if your gateway is not supported yet.
 
 ---
 <!--ts-->
-   * [Supported gateways](#supported-gateways)
-      * [SSH](#ssh)
-         * [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
-         * [Target host name resolution](#target-host-name-resolution)
-      * [AWS SSM](#aws-ssm)
-      * [Goggle IAP](#goggle-iap)
-      * [Kubernetes port forwarding](#kubernetes-port-forwarding)
-      * [External](#external)
-   * [Module output](#module-output)
-   * [Tunnel conditional creation](#tunnel-conditional-creation)
-   * [Environment](#environment)
-   * [Requirements](#requirements)
-      * [Posix shell](#posix-shell)
-      * ['timeout' utility](#timeout-utility)
-      * ['nohup' utility](#nohup-utility)
-      * [SSH client](#ssh-client)
-      * [AWS CLI](#aws-cli)
-      * [Kubectl](#kubectl)
-      * [gcloud CLI](#gcloud-cli)
-   * [Limitations](#limitations)
-      * [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
-   * [Examples](#examples)
-   * [To do](#to-do)
-      * [Add support for Azure bastion host tunnels](#add-support-for-azure-bastion-host-tunnels)
-   * [Requirements](#requirements-1)
-   * [Providers](#providers)
-   * [Modules](#modules)
-   * [Resources](#resources)
-   * [Inputs](#inputs)
-   * [Outputs](#outputs)
+- [Supported gateways](#supported-gateways)
+  - [SSH](#ssh)
+    - [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
+    - [Target host name resolution](#target-host-name-resolution)
+  - [AWS SSM](#aws-ssm)
+  - [Google IAP](#google-iap)
+  - [Kubernetes port forwarding](#kubernetes-port-forwarding)
+  - [External](#external)
+- [Module output](#module-output)
+- [Tunnel conditional creation](#tunnel-conditional-creation)
+- [Environment](#environment)
+- [Requirements](#requirements)
+  - [Posix shell](#posix-shell)
+  - ['timeout' utility](#timeout-utility)
+  - ['nohup' utility](#nohup-utility)
+  - [SSH client](#ssh-client)
+  - [AWS CLI](#aws-cli)
+  - [Kubectl](#kubectl)
+  - [gcloud CLI](#gcloud-cli)
+- [Limitations](#limitations)
+  - [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
+- [Examples](#examples)
+- [To do](#to-do)
+  - [Add support for Azure bastion host tunnels](#add-support-for-azure-bastion-host-tunnels)
+- [Requirements](#requirements-1)
+- [Providers](#providers)
+- [Modules](#modules)
+- [Resources](#resources)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 <!-- Added by: flaupretre, at: Sat Aug 19 14:30:13 UTC 2023 -->
@@ -137,10 +137,10 @@ How to activate the SSM variant :
 - set 'gateway_host' to the instance ID of the EC2 gateway
 - set 'gateway_user' to the appropriate name (see documentation), generally
   'ec2-user' ('ubuntu' when using Ubuntu-based AMIs).
-- As an option, add environment variables, like 'AWS_PROFILE', into
-  the 'env' input array.
+- Optional: set `aws_assume_role` to assume a role before opening the SSM session (e.g. into a different AWS account)
+- As an option, add environment variables, like 'AWS_PROFILE', into the 'env' input array.
 
-### Goggle IAP
+### Google IAP
 
 This feature is EXPERIMENTAL and was never tested. You use it under your total responsibility.
 Among others, no assumption should be made on the security level it provides.

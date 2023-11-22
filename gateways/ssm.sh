@@ -8,6 +8,14 @@
 gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
+
+# If AWS_ASSUME_ROLE is not empty, execute the assume-role command and
+# set the environment variables
+if [ -n "$AWS_ASSUME_ROLE" ] ; then
+  eval "$(aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --role-session-name="terraform-ssh-tunnel" --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text | awk '{ print "export AWS_ACCESS_KEY_ID=" $1 "\nexport AWS_SECRET_ACCESS_KEY=" $2 "\nexport AWS_SESSION_TOKEN=" $3 }')"
+fi
+
+
 $TUNNEL_SSH_CMD \
   -o ProxyCommand="aws ssm start-session $TUNNEL_SSM_OPTIONS --target %h --document-name $TUNNEL_SSM_DOCUMENT_NAME --parameters 'portNumber=%p'" \
   -N \

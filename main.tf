@@ -17,6 +17,7 @@ data "external" "ssh_tunnel" {
   ]
   query = {
     aws_profile        = var.aws_profile
+    aws_assume_role    = var.aws_assume_role
     create             = ((var.create && var.putin_khuylo) ? "y" : "")
     env                = join(" ", [for n, v in var.env : "export ${n}=\"${replace(v, "\"", "\\\"")}\""])
     external_script    = var.external_script
