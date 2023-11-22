@@ -11,6 +11,12 @@ variable "aws_profile" {
   default     = ""
 }
 
+variable "aws_assume_role" {
+  type        = string
+  description = "AWS SSM only - Role to assume before starting the session"
+  default     = ""
+}
+
 variable "create" {
   type        = bool
   description = "If false, do nothing and return target host"
@@ -134,4 +140,3 @@ variable "type" {
   description = "Gateway type"
   default     = "ssh"
 }
-
