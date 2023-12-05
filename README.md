@@ -60,6 +60,7 @@ You can also provide your own shell script if your gateway is not supported yet.
    * [Limitations](#limitations)
       * [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
    * [Examples](#examples)
+      * [Concept](#concept)
    * [To do](#to-do)
       * [Add support for Azure bastion host tunnels](#add-support-for-azure-bastion-host-tunnels)
    * [Requirements](#requirements-1)
@@ -290,6 +291,14 @@ When running terraform apply from a plan output this module does not work.
     terraform apply -input=false -auto-approve tf.plan
 
 ## Examples
+
+
+#### Concept
+
+The usage of the module is as easy to understand as your commandline
+```yaml
+ssh -L $local_host:$local_port:target_host:target_port gateway_user@gateway_host -p gateway_port
+```
 
 You may also be interested by the
 [terraform-ssh-tunnel-databases](https://github.com/flaupretre/terraform-ssh-tunnel-databases)
