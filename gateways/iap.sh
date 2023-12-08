@@ -13,10 +13,15 @@
 gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
-$TUNNEL_GCLOUD_CMD compute ssh \
+# set current project
+$TUNNEL_SSH_CMD config set project $TUNNEL_IAP_GCP_PROJECT
+
+$TUNNEL_SSH_CMD compute ssh -q \
   --tunnel-through-iap \
   --ssh-key-expire-after "$TUNNEL_TIMEOUT" \
-  --ssh-flag="-N -L $TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT -p $TUNNEL_GATEWAY_PORT" \
-  "$gw" &
+  --ssh-flag="-vvv" \
+  --ssh-flag="-N -L $TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT" \
+  $gw \
+  --zone $TUNNEL_IAP_GCP_ZONE &
 
 TUNNEL_PID=$!
