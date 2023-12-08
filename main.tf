@@ -23,6 +23,8 @@ data "external" "ssh_tunnel" {
     gateway_host       = var.gateway_host
     gateway_port       = var.gateway_port
     gateway_user       = var.gateway_user
+    iap_gcp_project    = var.iap_gcp_project
+    iap_gcp_zone       = var.iap_gcp_zone
     kubectl_cmd        = var.kubectl_cmd
     kubectl_context    = var.kubectl_context
     kubectl_namespace  = var.kubectl_namespace

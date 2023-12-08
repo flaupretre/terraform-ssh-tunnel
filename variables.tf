@@ -47,6 +47,18 @@ variable "gateway_user" {
   default     = ""
 }
 
+variable "iap_gcp_project" {
+  type        = string
+  description = "GCP project in which the gateway host is located"
+  default     = ""
+}
+
+variable "iap_gcp_zone" {
+  type        = string
+  description = "GCP zone in which the gateway host is located"
+  default     = ""
+}
+
 variable "kubectl_cmd" {
   type        = string
   description = "Alternate command for 'kubectl' (including options)"
