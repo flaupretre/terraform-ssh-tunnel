@@ -19,7 +19,6 @@ $TUNNEL_SSH_CMD config set project $TUNNEL_IAP_GCP_PROJECT
 $TUNNEL_SSH_CMD compute ssh -q \
   --tunnel-through-iap \
   --ssh-key-expire-after "$TUNNEL_TIMEOUT" \
-  --ssh-flag="-vvv" \
   --ssh-flag="-N -L $TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT" \
   $gw \
   --zone $TUNNEL_IAP_GCP_ZONE &
