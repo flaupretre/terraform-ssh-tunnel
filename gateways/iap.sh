@@ -13,7 +13,7 @@
 gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
-# set current project
+# set GCP project in which the gateway host is located
 $TUNNEL_SSH_CMD config set project $TUNNEL_IAP_GCP_PROJECT
 
 $TUNNEL_SSH_CMD compute ssh -q \
