@@ -14,7 +14,7 @@ gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
 $TUNNEL_SSH_CMD compute ssh \
-  --tunnel-through-iap --verbosity=debug\
+  --tunnel-through-iap \
   --ssh-key-expire-after "$TUNNEL_TIMEOUT" \
   --ssh-flag="-N -L $TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT" \
   $gw --project $TUNNEL_IAP_GCP_PROJECT --zone $TUNNEL_IAP_GCP_ZONE &
