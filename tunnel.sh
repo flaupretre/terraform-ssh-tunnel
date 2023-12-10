@@ -53,6 +53,10 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   export TUNNEL_GATEWAY_PORT
   TUNNEL_GATEWAY_USER="$(echo "$query" | sed -e 's/^.*\"gateway_user\": *\"//' -e 's/\".*$//g')"
   export TUNNEL_GATEWAY_USER
+  TUNNEL_IAP_GCP_PROJECT="$(echo "$query" | sed -e 's/^.*\"iap_gcp_project\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_IAP_GCP_PROJECT
+  TUNNEL_IAP_GCP_ZONE="$(echo "$query" | sed -e 's/^.*\"iap_gcp_zone\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_IAP_GCP_ZONE
   TUNNEL_KUBECTL_CMD="$(echo "$query" | sed -e 's/^.*\"kubectl_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_KUBECTL_CMD
   TUNNEL_KUBECTL_CONTEXT="$(echo "$query" | sed -e 's/^.*\"kubectl_context\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
