@@ -13,7 +13,7 @@
 gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
-$TUNNEL_SSH_CMD compute ssh \
+$TUNNEL_SSH_CMD compute ssh -q \
   --tunnel-through-iap \
   --ssh-key-expire-after "$TUNNEL_TIMEOUT" \
   --ssh-flag="-N -L $TUNNEL_LOCAL_HOST:$TUNNEL_LOCAL_PORT:$TUNNEL_TARGET_HOST:$TUNNEL_TARGET_PORT" \
