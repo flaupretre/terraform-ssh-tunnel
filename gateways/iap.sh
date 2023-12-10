@@ -10,6 +10,15 @@
 # warmly appreciated.
 #----------------------------------------------------------------------------
 
+# prevent connection error 'Login profile size exceeds 32 KiB'
+# https://github.com/kyma-project/test-infra/issues/93#issuecomment-457263589
+account=`echo $(gcloud config list account --format "value(core.account)")`
+
+for key in $(gcloud compute os-login ssh-keys list | grep -v FINGERPRINT); do
+    echo "SSH key '$key' for account '$account' removed"
+    gcloud compute os-login ssh-keys remove --key $key
+done
+
 gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
