@@ -31,6 +31,8 @@ Initially, only SSH tunnels were supported, hence the module name. Version 2 add
 
 - [SSH tunnels](https://www.ssh.com/academy/ssh/tunneling-example)
 - [AWS Systems Manager (SSM)](https://docs.aws.amazon.com/systems-manager/latest/userguide/)
+    - [Using SSH for doing the Port Forwarding](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-ssh)
+    - [Using the direct port forwarding from AWS SSM without going through SSH](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
 - [Google IAP](https://cloud.google.com/iap/docs/using-tcp-forwarding)
 - [Kubernetes port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
 
@@ -108,7 +110,7 @@ bastion host, not by the client you're running terraform on. So, you can use a p
 DNS name, like 'xxxx.csdfkzpf0iww.eu-west-1.rds.amazonaws.com'
 without having to convert it to an IP address first.
 
-### AWS SSM
+### AWS SSM (via SSH)
 
 The feature is adapted from the [terraform-ssm-tunnel](https://github.com/littlejo/terraform-ssm-tunnel/tree/master) fork by [Joseph Ligier](https://github.com/littlejo). Many thanks to Joseph for this addition.
 
@@ -140,6 +142,13 @@ How to activate the SSM variant :
 - Optional: set `aws_assume_role` to assume a role before opening the SSM session (e.g. into a different AWS account)
 - As an option, add environment variables, like 'AWS_PROFILE', into the 'env' input array.
 
+### AWS SSM (directly)
+Additionally to the method above, there is support to use the `ssm_direct` method that does not use SSH for the port forwarding but rather directly uses the [port forwarding feature](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding) of AWS SSM. This has the advantage, that it also works with AWS ECS Tasks that are cheaper to operate than EC2 machines. You need to provide the following variables for this variant:
+
+- set `type` to `ssm_direct`
+- set 'gateway_host' to the instance ID of the EC2 gateway or to the container id of the ECS task (i.e. `ecs:cluster-dev_76f81c3a205d40f795a66a1f11a7547b_76f81c3a205d40f795a66a1f11a7547b-4098987087`
+- set `target_host` and `target_port` as normal
+  
 ### Google IAP
 
 This feature is EXPERIMENTAL and was never tested. You use it under your total responsibility.
@@ -252,10 +261,10 @@ The command to launch this client can be modified via the 'ssh_cmd' variable.
 
 ### AWS CLI
 
-The 'ssm' gateway type requires AWS CLI to be installed and configured (the profile whose name is
+The 'ssm' and the `ssm_direct` gateway types requires AWS CLI to be installed and configured (the profile whose name is
 passed as 'aws_profile' must be defined).
 
-The EC2 gateway instance must run an SSM agent configured to allow SSM SSH sessions and permissions must
+The EC2 gateway or ECS task instance must run an SSM agent configured to allow SSM sessions and permissions must
 be set accordingly. IAM policies must also allow access from the EC2 gateway to the target host & port.
 
 ### Kubectl
