@@ -43,6 +43,7 @@ You can also provide your own shell script if your gateway is not supported yet.
     - [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
     - [Target host name resolution](#target-host-name-resolution)
   - [AWS SSM](#aws-ssm)
+    - [example](#example)
   - [Google IAP](#google-iap)
   - [Kubernetes port forwarding](#kubernetes-port-forwarding)
   - [External](#external)
@@ -139,6 +140,23 @@ How to activate the SSM variant :
   'ec2-user' ('ubuntu' when using Ubuntu-based AMIs).
 - Optional: set `aws_assume_role` to assume a role before opening the SSM session (e.g. into a different AWS account)
 - As an option, add environment variables, like 'AWS_PROFILE', into the 'env' input array.
+
+#### example
+To use an ec instance for the jump node to a kuberentes cluster:
+```hcl
+module "tunnel" {
+  source = "/home/boris/projects/terraform-ssh-tunnel"
+  version           = "2.2.0"
+  type              = "ssm"
+
+  # as a jump host for kubernetes you can use AWS-StartPortForwardingSessionToRemoteHost
+  ssm_document_name = "AWS-StartPortForwardingSessionToRemoteHost"
+  gateway_host = "i-12345"
+  gateway_user = "ec2-user"
+  target_host  = "myurl.region.eks.amazonaws.com"
+  target_port  = 443
+}
+```
 
 ### Google IAP
 
@@ -359,9 +377,9 @@ No requirements.
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_external"></a> [external](#provider\_external) | n/a |
+| Name                                                             | Version |
+| ---------------------------------------------------------------- | ------- |
+| <a name="provider_external"></a> [external](#provider\_external) | n/a     |
 
 ## Modules
 
@@ -369,43 +387,43 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [external_external.free_port](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
+| Name                                                                                                                         | Type        |
+| ---------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| [external_external.free_port](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external)  | data source |
 | [external_external.ssh_tunnel](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | AWS SSM only - AWS profile | `string` | `""` | no |
-| <a name="input_create"></a> [create](#input\_create) | If false, do nothing and return target host | `bool` | `true` | no |
-| <a name="input_env"></a> [env](#input\_env) | An array of name -> value environment variables | `any` | `{}` | no |
-| <a name="input_external_script"></a> [external\_script](#input\_external\_script) | External only - Path of shell script to run to open the tunnel | `string` | `"undef"` | no |
-| <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Gateway (syntax and meaning depend on gateway type - empty if no gateway (direct connection) | `any` | `""` | no |
-| <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port) | Gateway port | `number` | `22` | no |
-| <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on gateway (default for SSH : current user) | `any` | `""` | no |
-| <a name="input_kubectl_cmd"></a> [kubectl\_cmd](#input\_kubectl\_cmd) | Alternate command for 'kubectl' (including options) | `string` | `"kubectl"` | no |
-| <a name="input_kubectl_context"></a> [kubectl\_context](#input\_kubectl\_context) | Kubectl target context | `string` | `""` | no |
-| <a name="input_kubectl_namespace"></a> [kubectl\_namespace](#input\_kubectl\_namespace) | Kubectl target namespace | `string` | `""` | no |
-| <a name="input_local_host"></a> [local\_host](#input\_local\_host) | Local host name or IP. Set only if you cannot use default value | `string` | `"127.0.0.1"` | no |
-| <a name="input_local_port"></a> [local\_port](#input\_local\_port) | Local port to use. Default causes the system to find an unused port number | `number` | `"0"` | no |
-| <a name="input_parent_wait_sleep"></a> [parent\_wait\_sleep](#input\_parent\_wait\_sleep) | extra time to wait in the parent process for the child to create the tunnel | `string` | `"3"` | no |
-| <a name="input_putin_khuylo"></a> [putin\_khuylo](#input\_putin\_khuylo) | Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo! | `bool` | `true` | no |
-| <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Alternate command to launch a Posix shell | `string` | `"bash"` | no |
-| <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Alternate command to launch the SSH client (including options) | `string` | `"ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"` | no |
-| <a name="input_ssm_document_name"></a> [ssm\_document\_name](#input\_ssm\_document\_name) | AWS SSM only - SSM Document Name | `string` | `"AWS-StartSSHSession"` | no |
-| <a name="input_ssm_options"></a> [ssm\_options](#input\_ssm\_options) | AWS SSM only - Options to add to the 'aws ssm start-session' command line | `string` | `""` | no |
-| <a name="input_target_host"></a> [target\_host](#input\_target\_host) | Target host | `string` | n/a | yes |
-| <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
-| <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel won't remain open forever - do not change | `string` | `"30m"` | no |
-| <a name="input_tunnel_check_sleep"></a> [tunnel\_check\_sleep](#input\_tunnel\_check\_sleep) | extra time to wait for the tunnel to become available | `string` | `"0"` | no |
-| <a name="input_type"></a> [type](#input\_type) | Gateway type | `string` | `"ssh"` | no |
+| Name                                                                                         | Description                                                                                                                                     | Type     | Default                                                          | Required |
+| -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------- | :------: |
+| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile)                        | AWS SSM only - AWS profile                                                                                                                      | `string` | `""`                                                             |    no    |
+| <a name="input_create"></a> [create](#input\_create)                                         | If false, do nothing and return target host                                                                                                     | `bool`   | `true`                                                           |    no    |
+| <a name="input_env"></a> [env](#input\_env)                                                  | An array of name -> value environment variables                                                                                                 | `any`    | `{}`                                                             |    no    |
+| <a name="input_external_script"></a> [external\_script](#input\_external\_script)            | External only - Path of shell script to run to open the tunnel                                                                                  | `string` | `"undef"`                                                        |    no    |
+| <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host)                     | Gateway (syntax and meaning depend on gateway type - empty if no gateway (direct connection)                                                    | `any`    | `""`                                                             |    no    |
+| <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port)                     | Gateway port                                                                                                                                    | `number` | `22`                                                             |    no    |
+| <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user)                     | User to use on gateway (default for SSH : current user)                                                                                         | `any`    | `""`                                                             |    no    |
+| <a name="input_kubectl_cmd"></a> [kubectl\_cmd](#input\_kubectl\_cmd)                        | Alternate command for 'kubectl' (including options)                                                                                             | `string` | `"kubectl"`                                                      |    no    |
+| <a name="input_kubectl_context"></a> [kubectl\_context](#input\_kubectl\_context)            | Kubectl target context                                                                                                                          | `string` | `""`                                                             |    no    |
+| <a name="input_kubectl_namespace"></a> [kubectl\_namespace](#input\_kubectl\_namespace)      | Kubectl target namespace                                                                                                                        | `string` | `""`                                                             |    no    |
+| <a name="input_local_host"></a> [local\_host](#input\_local\_host)                           | Local host name or IP. Set only if you cannot use default value                                                                                 | `string` | `"127.0.0.1"`                                                    |    no    |
+| <a name="input_local_port"></a> [local\_port](#input\_local\_port)                           | Local port to use. Default causes the system to find an unused port number                                                                      | `number` | `"0"`                                                            |    no    |
+| <a name="input_parent_wait_sleep"></a> [parent\_wait\_sleep](#input\_parent\_wait\_sleep)    | extra time to wait in the parent process for the child to create the tunnel                                                                     | `string` | `"3"`                                                            |    no    |
+| <a name="input_putin_khuylo"></a> [putin\_khuylo](#input\_putin\_khuylo)                     | Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo! | `bool`   | `true`                                                           |    no    |
+| <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd)                              | Alternate command to launch a Posix shell                                                                                                       | `string` | `"bash"`                                                         |    no    |
+| <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd)                                    | Alternate command to launch the SSH client (including options)                                                                                  | `string` | `"ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"` |    no    |
+| <a name="input_ssm_document_name"></a> [ssm\_document\_name](#input\_ssm\_document\_name)    | AWS SSM only - SSM Document Name                                                                                                                | `string` | `"AWS-StartSSHSession"`                                          |    no    |
+| <a name="input_ssm_options"></a> [ssm\_options](#input\_ssm\_options)                        | AWS SSM only - Options to add to the 'aws ssm start-session' command line                                                                       | `string` | `""`                                                             |    no    |
+| <a name="input_target_host"></a> [target\_host](#input\_target\_host)                        | Target host                                                                                                                                     | `string` | n/a                                                              |   yes    |
+| <a name="input_target_port"></a> [target\_port](#input\_target\_port)                        | Target port number                                                                                                                              | `number` | n/a                                                              |   yes    |
+| <a name="input_timeout"></a> [timeout](#input\_timeout)                                      | Timeout value ensures tunnel won't remain open forever - do not change                                                                          | `string` | `"30m"`                                                          |    no    |
+| <a name="input_tunnel_check_sleep"></a> [tunnel\_check\_sleep](#input\_tunnel\_check\_sleep) | extra time to wait for the tunnel to become available                                                                                           | `string` | `"0"`                                                            |    no    |
+| <a name="input_type"></a> [type](#input\_type)                                               | Gateway type                                                                                                                                    | `string` | `"ssh"`                                                          |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_host"></a> [host](#output\_host) | Host to connect to |
+| Name                                             | Description               |
+| ------------------------------------------------ | ------------------------- |
+| <a name="output_host"></a> [host](#output\_host) | Host to connect to        |
 | <a name="output_port"></a> [port](#output\_port) | Port number to connect to |
 <!-- END_TF_DOCS -->
