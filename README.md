@@ -31,6 +31,8 @@ Initially, only SSH tunnels were supported, hence the module name. Version 2 add
 
 - [SSH tunnels](https://www.ssh.com/academy/ssh/tunneling-example)
 - [AWS Systems Manager (SSM)](https://docs.aws.amazon.com/systems-manager/latest/userguide/)
+    - [Using SSH for doing the Port Forwarding](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-ssh)
+    - [Using the direct port forwarding from AWS SSM without going through SSH](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
 - [Google IAP](https://cloud.google.com/iap/docs/using-tcp-forwarding)
 - [Kubernetes port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
 
@@ -42,7 +44,9 @@ You can also provide your own shell script if your gateway is not supported yet.
   - [SSH](#ssh)
     - [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
     - [Target host name resolution](#target-host-name-resolution)
-  - [AWS SSM](#aws-ssm)
+  - AWS SSM
+    - [Using an SSH Tunnel](#aws-ssm-via-ssh)
+    - [Directly via AWS SSM without SSH](#aws-ssm-directly)
   - [Google IAP](#google-iap)
   - [Kubernetes port forwarding](#kubernetes-port-forwarding)
   - [External](#external)
@@ -108,7 +112,7 @@ bastion host, not by the client you're running terraform on. So, you can use a p
 DNS name, like 'xxxx.csdfkzpf0iww.eu-west-1.rds.amazonaws.com'
 without having to convert it to an IP address first.
 
-### AWS SSM
+### AWS SSM (via SSH)
 
 The feature is adapted from the [terraform-ssm-tunnel](https://github.com/littlejo/terraform-ssm-tunnel/tree/master) fork by [Joseph Ligier](https://github.com/littlejo). Many thanks to Joseph for this addition.
 
@@ -140,6 +144,69 @@ How to activate the SSM variant :
 - Optional: set `aws_assume_role` to assume a role before opening the SSM session (e.g. into a different AWS account)
 - As an option, add environment variables, like 'AWS_PROFILE', into the 'env' input array.
 
+### AWS SSM (directly)
+Additionally to the method above, there is support to use the `ssm_direct` method that does not use SSH for the port forwarding but rather directly uses the [port forwarding feature](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding) of AWS SSM. This has the advantage, that it also works with AWS ECS Tasks that are cheaper to operate than EC2 machines. You need to provide the following variables for this variant:
+
+- set `type` to `ssm_direct`
+- set 'gateway_host' to the instance ID of the EC2 gateway or to the container id of the ECS task (i.e. `ecs:cluster-dev_76f81c3a205d40f795a66a1f11a7547b_76f81c3a205d40f795a66a1f11a7547b-4098987087`
+- set `target_host` and `target_port` as normal
+
+The following example shows how to use an EC2 jump host to connect to EKS:
+```
+data "aws_eks_cluster" "cluster" {
+  name = "cluster-name"
+}
+
+data "aws_instance" "jump_node" {
+
+  filter {
+    name   = "tag:Name"
+    values = ["cluster-name-bastion"]
+  }
+}
+
+module "tunnel" {
+  version           = "2.0.0"
+  type              = "ssm_direct"
+
+  gateway_host = data.aws_instance.jump_node.id
+  gateway_user = "ec2-user"
+  target_host  = data.aws_eks_cluster.cluster.endpoint
+  target_port  = 443
+}
+```
+
+The following example shows how to use a container running inside a task inside an ECS cluster to connect to an RDS machine:
+```
+// Fetch the RDS Instance
+data "aws_db_instance" "database" {
+  db_instance_identifier = var.rds_instance_identifier
+}
+
+// Open a tunnel via AWS SSM to RDS through the ECS container
+module "db_tunnel" {
+  source  = "flaupretre/tunnel/ssh"
+  version = "2.0.0"
+
+  type            = "ssm_direct"
+
+  target_host  = data.aws_db_instance.database.address
+  target_port  = data.aws_db_instance.database.port
+  // TODO: Compute dynamically
+  // Format for ECS is: "ecs:[ecs cluster name]_[ecs task id]_[ecs container id]"
+  gateway_host = "ecs:m79-platform-dev_2ac3750fa9704bf5b4cd387078bd0b9d_2ac3750fa9704bf5b4cd387078bd0b9d-4098987087"
+}
+
+provider "postgresql" {
+  host            = module.db_tunnel.host
+  port            = module.db_tunnel.port
+  database        = "postgres"
+  username        = data.aws_db_instance.database.master_username
+  password        = var.rds_masteruser_password
+}
+```
+
+  
 ### Google IAP
 
 This feature is EXPERIMENTAL and was never tested. You use it under your total responsibility.
@@ -252,10 +319,10 @@ The command to launch this client can be modified via the 'ssh_cmd' variable.
 
 ### AWS CLI
 
-The 'ssm' gateway type requires AWS CLI to be installed and configured (the profile whose name is
+The 'ssm' and the `ssm_direct` gateway types requires AWS CLI to be installed and configured (the profile whose name is
 passed as 'aws_profile' must be defined).
 
-The EC2 gateway instance must run an SSM agent configured to allow SSM SSH sessions and permissions must
+The EC2 gateway or ECS task instance must run an SSM agent configured to allow SSM sessions and permissions must
 be set accordingly. IAM policies must also allow access from the EC2 gateway to the target host & port.
 
 ### Kubectl
