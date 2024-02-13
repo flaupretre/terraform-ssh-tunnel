@@ -44,7 +44,9 @@ You can also provide your own shell script if your gateway is not supported yet.
   - [SSH](#ssh)
     - [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
     - [Target host name resolution](#target-host-name-resolution)
-  - [AWS SSM](#aws-ssm)
+  - AWS SSM
+    - [Using an SSH Tunnel](#aws-ssm-via-ssh)
+    - [Directly via AWS SSM without SSH](#aws-ssm-directly)
   - [Google IAP](#google-iap)
   - [Kubernetes port forwarding](#kubernetes-port-forwarding)
   - [External](#external)
@@ -148,6 +150,62 @@ Additionally to the method above, there is support to use the `ssm_direct` metho
 - set `type` to `ssm_direct`
 - set 'gateway_host' to the instance ID of the EC2 gateway or to the container id of the ECS task (i.e. `ecs:cluster-dev_76f81c3a205d40f795a66a1f11a7547b_76f81c3a205d40f795a66a1f11a7547b-4098987087`
 - set `target_host` and `target_port` as normal
+
+The following example shows how to use an EC2 jump host to connect to EKS:
+```
+data "aws_eks_cluster" "cluster" {
+  name = "cluster-name"
+}
+
+data "aws_instance" "jump_node" {
+
+  filter {
+    name   = "tag:Name"
+    values = ["cluster-name-bastion"]
+  }
+}
+
+module "tunnel" {
+  version           = "2.0.0"
+  type              = "ssm_direct"
+
+  gateway_host = data.aws_instance.jump_node.id
+  gateway_user = "ec2-user"
+  target_host  = data.aws_eks_cluster.cluster.endpoint
+  target_port  = 443
+}
+```
+
+The following example shows how to use a container running inside a task inside an ECS cluster to connect to an RDS machine:
+```
+// Fetch the RDS Instance
+data "aws_db_instance" "database" {
+  db_instance_identifier = var.rds_instance_identifier
+}
+
+// Open a tunnel via AWS SSM to RDS through the ECS container
+module "db_tunnel" {
+  source  = "flaupretre/tunnel/ssh"
+  version = "2.0.0"
+
+  type            = "ssm_direct"
+
+  target_host  = data.aws_db_instance.database.address
+  target_port  = data.aws_db_instance.database.port
+  // TODO: Compute dynamically
+  // Format for ECS is: "ecs:[ecs cluster name]_[ecs task id]_[ecs container id]"
+  gateway_host = "ecs:m79-platform-dev_2ac3750fa9704bf5b4cd387078bd0b9d_2ac3750fa9704bf5b4cd387078bd0b9d-4098987087"
+}
+
+provider "postgresql" {
+  host            = module.db_tunnel.host
+  port            = module.db_tunnel.port
+  database        = "postgres"
+  username        = data.aws_db_instance.database.master_username
+  password        = var.rds_masteruser_password
+}
+```
+
   
 ### Google IAP
 
