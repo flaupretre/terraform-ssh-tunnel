@@ -1,6 +1,6 @@
 
 output "port" {
-  value       = local.local_port
+  value       = data.external.ssh_tunnel.result.port
   description = "Port number to connect to"
 }
 
