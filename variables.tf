@@ -5,18 +5,6 @@ variable "putin_khuylo" {
   default     = true
 }
 
-variable "aws_profile" {
-  type        = string
-  description = "AWS SSM only - AWS profile"
-  default     = ""
-}
-
-variable "aws_assume_role" {
-  type        = string
-  description = "AWS SSM only - Role to assume before starting the session"
-  default     = ""
-}
-
 variable "create" {
   type        = bool
   description = "If false, do nothing and return target host"
@@ -53,15 +41,15 @@ variable "gateway_user" {
   default     = ""
 }
 
-variable "iap_gcp_project" {
+variable "iap_project" {
   type        = string
-  description = "GCP project in which the gateway host is located"
+  description = "IAP only - GCP project in which the gateway host is located"
   default     = ""
 }
 
-variable "iap_gcp_zone" {
+variable "iap_zone" {
   type        = string
-  description = "GCP zone in which the gateway host is located"
+  description = "IAP only - GCP zone in which the gateway host is located"
   default     = ""
 }
 
@@ -113,6 +101,12 @@ variable "ssh_cmd" {
   default     = "ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 }
 
+variable "gcloud_cmd" {
+  type        = string
+  description = "Alternate 'gcloud' command (GCP only)"
+  default     = "gcloud"
+}
+
 variable "ssm_document_name" {
   type        = string
   description = "AWS SSM only - SSM Document Name"
@@ -122,6 +116,18 @@ variable "ssm_document_name" {
 variable "ssm_options" {
   type        = string
   description = "AWS SSM only - Options to add to the 'aws ssm start-session' command line"
+  default     = ""
+}
+
+variable "ssm_profile" {
+  type        = string
+  description = "AWS SSM only - AWS profile (default: empty)"
+  default     = ""
+}
+
+variable "ssm_role" {
+  type        = string
+  description = "AWS SSM only - Role to assume before starting the session (default: empty)"
   default     = ""
 }
 

@@ -43,6 +43,8 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
 
   TUNNEL_CREATE="$(echo "$query" | sed -e 's/^.*\"create\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_CREATE
+  TUNNEL_TYPE="$(echo "$query" | sed -e 's/^.*\"type\": *\"//' -e 's/\".*$//g')"
+  export TUNNEL_TYPE
   TUNNEL_ENV="$(echo "$query" | sed -e 's/^.*\"env\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_ENV
   TUNNEL_EXTERNAL_SCRIPT="$(echo "$query" | sed -e 's/^.*\"external_script\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
@@ -53,10 +55,12 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   export TUNNEL_GATEWAY_PORT
   TUNNEL_GATEWAY_USER="$(echo "$query" | sed -e 's/^.*\"gateway_user\": *\"//' -e 's/\".*$//g')"
   export TUNNEL_GATEWAY_USER
-  TUNNEL_IAP_GCP_PROJECT="$(echo "$query" | sed -e 's/^.*\"iap_gcp_project\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
-  export TUNNEL_IAP_GCP_PROJECT
-  TUNNEL_IAP_GCP_ZONE="$(echo "$query" | sed -e 's/^.*\"iap_gcp_zone\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
-  export TUNNEL_IAP_GCP_ZONE
+  TUNNEL_IAP_GCP_PROJECT="$(echo "$query" | sed -e 's/^.*\"iap_project\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_IAP_PROJECT
+  TUNNEL_IAP_GCP_ZONE="$(echo "$query" | sed -e 's/^.*\"iap_zone\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_IAP_ZONE
+  TUNNEL_GCLOUD_CMD="$(echo "$query" | sed -e 's/^.*\"gcloud_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_GCLOUD_CMD
   TUNNEL_KUBECTL_CMD="$(echo "$query" | sed -e 's/^.*\"kubectl_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_KUBECTL_CMD
   TUNNEL_KUBECTL_CONTEXT="$(echo "$query" | sed -e 's/^.*\"kubectl_context\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
@@ -85,22 +89,10 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   export TUNNEL_TIMEOUT
   TUNNEL_CHECK_SLEEP="$(echo "$query" | sed -e 's/^.*\"tunnel_check_sleep\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_CHECK_SLEEP
-  TUNNEL_TYPE="$(echo "$query" | sed -e 's/^.*\"type\": *\"//' -e 's/\".*$//g')"
-  export TUNNEL_TYPE
-
-
-  # Set AWS_PROFILE only if var is not empty
-  profile="$(echo "$query" | sed -e 's/^.*\"aws_profile\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
-  if [ -n "$profile" ] ; then
-    AWS_PROFILE="$profile"
-    export AWS_PROFILE
-  fi
-
-  role="$(echo "$query" | sed -e 's/^.*\"aws_assume_role\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
-  if [ -n "$role" ] ; then
-    AWS_ASSUME_ROLE="$role"
-    export AWS_ASSUME_ROLE
-  fi
+  TUNNEL_SSM_PROFILE="$(echo "$query" | sed -e 's/^.*\"ssm_profile\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_SSM_PROFILE
+  TUNNEL_SSM_ROLE="$(echo "$query" | sed -e 's/^.*\"ssm_role\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  export TUNNEL_SSM_ROLE
 
   if [ "X$TUNNEL_CREATE" = X -o "X$TUNNEL_GATEWAY_HOST" = X ] ; then
     # No tunnel - connect directly to target host

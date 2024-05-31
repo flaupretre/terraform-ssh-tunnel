@@ -1,4 +1,4 @@
-Note: This is version 2, a major version including a lot of new features, the most important addition being the support
+Note: This is version 2, a major version including several new features, the most important addition being the support
 of several new tunnel mechanisms in addition to SSH. Compatibility should be preserved for terraform code already using
 version 1 : new variables were added but the former ones are usable as-is and the module output does not change.
 
@@ -7,27 +7,26 @@ in these forks and integrated the ideas I found interesting. Github is not the i
 if you think I shouldn't have taken an idea from your code without telling you, feel free to contact me.
 Once again, thanks to all who give time and energy to the community.
 
-As some of this code was not tested thoroughly and, sometimes, not tested at all, please consider SSH tunnels to be
-the only gateway ready for production purpose. If you experiment another one, I'm very interested by the experience
-you may have, positive or negative. Of course, comments and suggestions are always welcome.
+Of course, comments and suggestions, especially regarding the new tunnel
+mechanisms,  are always welcome.
 
 ----
 
 This terraform module allows to manage a 'remote' resource via a tunnel. A tunnel (aka <i>gateway</i>, aka <i>bastion host</i>)
 provides a bidirectionnal connection between a 'public' area and a 'private'
-area. Terraform runs on a host located in the 'public ' area and uses the gateway to
+area. Terraform runs on a host located in the 'public ' area and will use the <i>gateway</i> to
 access a target host & port located in the 'private' area.
 
-This is used, for instance, to create and configure databases on AWS RDS instances.
-Creating RDS instances is easy, as it uses the public AWS API, but creating
-databases is more complex because it requires connecting to the RDS instance which,
-usually, is accessible from private subnets only.
+This can be used, for instance, to create and configure databases on AWS RDS instances.
+Creating RDS instances is obvious, as it uses the public AWS API, but creating
+databases is more complex because it requires connecting to the RDS instance which
+, usually, is accessible from private subnets only.
 
-Running terraform on a host inside the private area is a possible solution, often used by Terraform automation software like [Atlantis](https://www.runatlantis.io/) but generally too complex
+Running terraform on a host inside the private area is a possible solution, often used by Terraform automation software like [Atlantis](https://www.runatlantis.io/) but complex
 to install and manage. It also does not allow accessing more than one private areas from
-a single location. So, for a lot of users, using tunnels is the best solution.
+a single location. So, for a lot of users, using tunnels is the solution.
 
-Initially, only SSH tunnels were supported, hence the module name. Version 2 added suport for other tunnel mechanisms. So, we now support :
+Initially, only SSH tunnels were supported, hence the module name. Version 2 added suport for other tunnel mechanisms. The module now supports :
 
 - [SSH tunnels](https://www.ssh.com/academy/ssh/tunneling-example)
 - [AWS Systems Manager (SSM)](https://docs.aws.amazon.com/systems-manager/latest/userguide/)
@@ -38,39 +37,39 @@ You can also provide your own shell script if your gateway is not supported yet.
 
 ---
 <!--ts-->
-- [Supported gateways](#supported-gateways)
-  - [SSH](#ssh)
-    - [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
-    - [Target host name resolution](#target-host-name-resolution)
-  - [AWS SSM](#aws-ssm)
-  - [Google IAP](#google-iap)
-  - [Kubernetes port forwarding](#kubernetes-port-forwarding)
-  - [External](#external)
-- [Module output](#module-output)
-- [Tunnel conditional creation](#tunnel-conditional-creation)
-- [Environment](#environment)
-- [Requirements](#requirements)
-  - [Posix shell](#posix-shell)
-  - ['timeout' utility](#timeout-utility)
-  - ['nohup' utility](#nohup-utility)
-  - [SSH client](#ssh-client)
-  - [AWS CLI](#aws-cli)
-  - [Kubectl](#kubectl)
-  - [gcloud CLI](#gcloud-cli)
-- [Limitations](#limitations)
-  - [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
-- [Examples](#examples)
-- [To do](#to-do)
-  - [Add support for Azure bastion host tunnels](#add-support-for-azure-bastion-host-tunnels)
-- [Requirements](#requirements-1)
-- [Providers](#providers)
-- [Modules](#modules)
-- [Resources](#resources)
-- [Inputs](#inputs)
-- [Outputs](#outputs)
+   * [Supported gateways](#supported-gateways)
+      * [SSH](#ssh)
+         * [Using multiple SSH gateways (ProxyJump)](#using-multiple-ssh-gateways-proxyjump)
+         * [Target host name resolution](#target-host-name-resolution)
+      * [AWS SSM](#aws-ssm)
+      * [Google IAP](#google-iap)
+      * [Kubernetes port forwarding](#kubernetes-port-forwarding)
+      * [External](#external)
+   * [Module output](#module-output)
+   * [Tunnel conditional creation](#tunnel-conditional-creation)
+   * [Environment](#environment)
+   * [Requirements](#requirements)
+      * [Posix shell](#posix-shell)
+      * ['timeout' utility](#timeout-utility)
+      * ['nohup' utility](#nohup-utility)
+      * [SSH client](#ssh-client)
+      * [AWS CLI](#aws-cli)
+      * [Kubectl](#kubectl)
+      * [gcloud CLI](#gcloud-cli)
+   * [Limitations](#limitations)
+      * [Running terraform apply from plan out](#running-terraform-apply-from-plan-out)
+   * [Examples](#examples)
+   * [To do](#to-do)
+      * [Add support for Azure bastion host tunnels](#add-support-for-azure-bastion-host-tunnels)
+   * [Requirements](#requirements-1)
+   * [Providers](#providers)
+   * [Modules](#modules)
+   * [Resources](#resources)
+   * [Inputs](#inputs)
+   * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Sat Aug 19 14:30:13 UTC 2023 -->
+<!-- Added by: flaupretre, at: Fri May 31 12:10:18 UTC 2024 -->
 
 <!--te-->
 
@@ -86,7 +85,7 @@ target host & port.
 
 You cannot use passwords to open the SSH connection. So, every potential user must be registered on the
 bastion host along with the appropriate public key. In order to avoid this key management, an alternative
-is to share a key between authorized users but keeping a shared secret secure is also a complex task.
+is to share a key between authorized users but keeping a shared secret secure is quite complex.
 
 See below the default value for the 'ssh_cmd' input variable. These are the command
 and options used by default to launch the SSH client. You can change them if the default value does not
@@ -137,13 +136,10 @@ How to activate the SSM variant :
 - set 'gateway_host' to the instance ID of the EC2 gateway
 - set 'gateway_user' to the appropriate name (see documentation), generally
   'ec2-user' ('ubuntu' when using Ubuntu-based AMIs).
-- Optional: set `aws_assume_role` to assume a role before opening the SSM session (e.g. into a different AWS account)
-- As an option, add environment variables, like 'AWS_PROFILE', into the 'env' input array.
+- Optional: set `ssm_role` to assume a role before opening the SSM session (e.g. into a different AWS account)
+- Optional: set `ssm_profile` to specify a non-default AWS profile to use
 
 ### Google IAP
-
-This feature is EXPERIMENTAL and was never tested. You use it under your total responsibility.
-Among others, no assumption should be made on the security level it provides.
 
 This gateway uses the Google Identity-Aware Proxy (IAP) feature to create a tunnel to a private target host and port.
 
@@ -216,7 +212,7 @@ possible SSH agent configuration to retrieve your private key.
 
 If you want to set and/or replace environment variables before creating the tunnel,
 you can provide a non-empty 'env' input variable. This string will be 'eval'uated
-before launching the command to create the tunnel. When using an SSM connection, for instance, it can be used to set the 'AWS_PROFILE' variable.
+before launching the command to create the tunnel.
 
 ## Requirements
 
@@ -227,8 +223,7 @@ A Posix-compatible shell should be available.
 We use 'bash' by default but you can change it to another string by setting
 the 'shell_cmd' input variable.
 
-On Windows, I think it can run with the cygwin environment but I can't
-help on this.
+On Windows, it should run with the cygwin environment but I never tested it.
 
 ### 'timeout' utility
 
@@ -252,8 +247,7 @@ The command to launch this client can be modified via the 'ssh_cmd' variable.
 
 ### AWS CLI
 
-The 'ssm' gateway type requires AWS CLI to be installed and configured (the profile whose name is
-passed as 'aws_profile' must be defined).
+The 'ssm' gateway type requires AWS CLI to be installed and configured (if a profile name is passed as 'ssm_profile', it must be defined).
 
 The EC2 gateway instance must run an SSM agent configured to allow SSM SSH sessions and permissions must
 be set accordingly. IAM policies must also allow access from the EC2 gateway to the target host & port.
@@ -291,7 +285,7 @@ When running terraform apply from a plan output this module does not work.
 
 ## Examples
 
-You may also be interested by the
+You may be interested by the
 [terraform-ssh-tunnel-databases](https://github.com/flaupretre/terraform-ssh-tunnel-databases)
 module, which uses SSH tunnels to manage MySql/PostgreSql databases, roles, and
 permissions.
@@ -378,13 +372,15 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | AWS SSM only - AWS profile | `string` | `""` | no |
 | <a name="input_create"></a> [create](#input\_create) | If false, do nothing and return target host | `bool` | `true` | no |
 | <a name="input_env"></a> [env](#input\_env) | An array of name -> value environment variables | `any` | `{}` | no |
 | <a name="input_external_script"></a> [external\_script](#input\_external\_script) | External only - Path of shell script to run to open the tunnel | `string` | `"undef"` | no |
 | <a name="input_gateway_host"></a> [gateway\_host](#input\_gateway\_host) | Gateway (syntax and meaning depend on gateway type - empty if no gateway (direct connection) | `any` | `""` | no |
 | <a name="input_gateway_port"></a> [gateway\_port](#input\_gateway\_port) | Gateway port | `number` | `22` | no |
 | <a name="input_gateway_user"></a> [gateway\_user](#input\_gateway\_user) | User to use on gateway (default for SSH : current user) | `any` | `""` | no |
+| <a name="input_gcloud_cmd"></a> [gcloud\_cmd](#input\_gcloud\_cmd) | Alternate 'gcloud' command (GCP only) | `string` | `"gcloud"` | no |
+| <a name="input_iap_project"></a> [iap\_project](#input\_iap\_project) | IAP only - GCP project in which the gateway host is located | `string` | `""` | no |
+| <a name="input_iap_zone"></a> [iap\_zone](#input\_iap\_zone) | IAP only - GCP zone in which the gateway host is located | `string` | `""` | no |
 | <a name="input_kubectl_cmd"></a> [kubectl\_cmd](#input\_kubectl\_cmd) | Alternate command for 'kubectl' (including options) | `string` | `"kubectl"` | no |
 | <a name="input_kubectl_context"></a> [kubectl\_context](#input\_kubectl\_context) | Kubectl target context | `string` | `""` | no |
 | <a name="input_kubectl_namespace"></a> [kubectl\_namespace](#input\_kubectl\_namespace) | Kubectl target namespace | `string` | `""` | no |
@@ -396,6 +392,8 @@ No modules.
 | <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Alternate command to launch the SSH client (including options) | `string` | `"ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"` | no |
 | <a name="input_ssm_document_name"></a> [ssm\_document\_name](#input\_ssm\_document\_name) | AWS SSM only - SSM Document Name | `string` | `"AWS-StartSSHSession"` | no |
 | <a name="input_ssm_options"></a> [ssm\_options](#input\_ssm\_options) | AWS SSM only - Options to add to the 'aws ssm start-session' command line | `string` | `""` | no |
+| <a name="input_ssm_profile"></a> [ssm\_profile](#input\_ssm\_profile) | AWS SSM only - AWS profile (default: empty) | `string` | `""` | no |
+| <a name="input_ssm_role"></a> [ssm\_role](#input\_ssm\_role) | AWS SSM only - Role to assume before starting the session (default: empty) | `string` | `""` | no |
 | <a name="input_target_host"></a> [target\_host](#input\_target\_host) | Target host | `string` | n/a | yes |
 | <a name="input_target_port"></a> [target\_port](#input\_target\_port) | Target port number | `number` | n/a | yes |
 | <a name="input_timeout"></a> [timeout](#input\_timeout) | Timeout value ensures tunnel won't remain open forever - do not change | `string` | `"30m"` | no |

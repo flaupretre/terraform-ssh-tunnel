@@ -16,30 +16,31 @@ data "external" "ssh_tunnel" {
     "${path.module}/tunnel.sh"
   ]
   query = {
-    aws_profile        = var.aws_profile
-    aws_assume_role    = var.aws_assume_role
     create             = ((var.create && var.putin_khuylo) ? "y" : "")
-    env                = join(" ", [for n, v in var.env : "export ${n}=\"${replace(v, "\"", "\\\"")}\""])
-    external_script    = var.external_script
+    type               = var.type
+    target_host        = var.target_host
+    target_port        = var.target_port
+    local_host         = var.local_host
+    local_port         = local.local_port
     gateway_host       = var.gateway_host
     gateway_port       = var.gateway_port
     gateway_user       = var.gateway_user
-    iap_gcp_project    = var.iap_gcp_project
-    iap_gcp_zone       = var.iap_gcp_zone
+    timeout            = var.timeout
+    tunnel_check_sleep = var.tunnel_check_sleep
+    env                = join(" ", [for n, v in var.env : "export ${n}=\"${replace(v, "\"", "\\\"")}\""])
+    shell_cmd          = var.shell_cmd
+    ssh_cmd            = var.ssh_cmd
+    gcloud_cmd         = var.gcloud_cmd
+    iap_project        = var.iap_gcp_project
+    iap_zone           = var.iap_gcp_zone
     kubectl_cmd        = var.kubectl_cmd
     kubectl_context    = var.kubectl_context
     kubectl_namespace  = var.kubectl_namespace
-    local_host         = var.local_host
-    local_port         = local.local_port
     parent_wait_sleep  = var.parent_wait_sleep
-    shell_cmd          = var.shell_cmd
-    ssh_cmd            = var.ssh_cmd
+    ssm_profile        = var.aws_profile
+    ssm__role          = var.aws_assume_role
     ssm_document_name  = var.ssm_document_name
     ssm_options        = var.ssm_options
-    target_host        = var.target_host
-    target_port        = var.target_port
-    timeout            = var.timeout
-    tunnel_check_sleep = var.tunnel_check_sleep
-    type               = var.type
+    external_script    = var.external_script
   }
 }
