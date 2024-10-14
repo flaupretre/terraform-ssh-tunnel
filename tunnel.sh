@@ -55,9 +55,9 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   export TUNNEL_GATEWAY_PORT
   TUNNEL_GATEWAY_USER="$(echo "$query" | sed -e 's/^.*\"gateway_user\": *\"//' -e 's/\".*$//g')"
   export TUNNEL_GATEWAY_USER
-  TUNNEL_IAP_GCP_PROJECT="$(echo "$query" | sed -e 's/^.*\"iap_project\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  TUNNEL_IAP_PROJECT="$(echo "$query" | sed -e 's/^.*\"iap_project\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_IAP_PROJECT
-  TUNNEL_IAP_GCP_ZONE="$(echo "$query" | sed -e 's/^.*\"iap_zone\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
+  TUNNEL_IAP_ZONE="$(echo "$query" | sed -e 's/^.*\"iap_zone\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_IAP_ZONE
   TUNNEL_GCLOUD_CMD="$(echo "$query" | sed -e 's/^.*\"gcloud_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_GCLOUD_CMD
