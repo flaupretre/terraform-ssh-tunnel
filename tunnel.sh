@@ -35,7 +35,7 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
     env >&2
   fi
 
-  TUNNEL_ABSPATH=$(cd "$(dirname "$0")"; pwd -P)
+  TUNNEL_ABSPATH=$(cd "$(dirname "$0")" >/dev/null; pwd -P)
   export TUNNEL_ABSPATH
 
   query="$(dd 2>/dev/null)"
