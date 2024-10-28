@@ -6,6 +6,7 @@ ret=0
 
 ps_is_busybox()
 {
+test -h /bin/ps || return 1
 [ "$(readlink /bin/ps)" = "/bin/busybox" ]
 }
 #---
