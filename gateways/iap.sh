@@ -17,7 +17,7 @@ project=""
 [ "X$TUNNEL_IAP_PROJECT" = X ] || project="--project \"$TUNNEL_IAP_PROJECT\""
 
 zone=""
-[ "X$TUNNEL_IAP_ZONE" = X ] || zone="--zone \"$TUNNEL_IAP_ZONE\""
+[ "X$TUNNEL_IAP_ZONE" = X ] || zone="--zone $TUNNEL_IAP_ZONE"
 
 $TUNNEL_GCLOUD_CMD compute ssh -q \
   --tunnel-through-iap \
