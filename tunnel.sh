@@ -76,6 +76,8 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   export TUNNEL_PARENT_WAIT_SLEEP
   TUNNEL_SHELL_CMD="$(echo "$query" | sed -e 's/^.*\"shell_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_SHELL_CMD
+  SSH_PRIVATE_KEY="$(echo "$query" | sed -e 's/^.*"ssh_private_key": *"//' -e 's/",.*$//' -e 's/\\n/\n/g' -e 's/\\\"/\"/g')"
+  export SSH_PRIVATE_KEY
   TUNNEL_SSH_CMD="$(echo "$query" | sed -e 's/^.*\"ssh_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_SSH_CMD
   TUNNEL_SSM_DOCUMENT_NAME="$(echo "$query" | sed -e 's/^.*\"ssm_document_name\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
@@ -148,6 +150,12 @@ else
 
   if [ -n "$TUNNEL_ENV" ]; then
     eval "$TUNNEL_ENV"
+  fi
+
+  if [ -n "$SSH_PRIVATE_KEY" ]; then
+    echo "Adding private key to ssh-agent..." >&2
+    echo "${SSH_PRIVATE_KEY}" | ssh-add -
+    trap 'echo "Removing private key from ssh-agent..." >&2; ssh-add -d <<< "${SSH_PRIVATE_KEY}"' EXIT
   fi
 
   # Script must set $TUNNEL_PID
