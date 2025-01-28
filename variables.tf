@@ -101,6 +101,13 @@ variable "ssh_cmd" {
   default     = "ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 }
 
+variable "ssh_private_key" {
+  description = "Optional private key content to use for SSH tunneling"
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "gcloud_cmd" {
   type        = string
   description = "Alternate 'gcloud' command (GCP only)"

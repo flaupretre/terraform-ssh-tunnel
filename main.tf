@@ -41,6 +41,7 @@ data "external" "ssh_tunnel" {
     ssm_role           = var.ssm_role
     ssm_document_name  = var.ssm_document_name
     ssm_options        = var.ssm_options
+    ssh_private_key    = var.ssh_private_key
     external_script    = var.external_script
   }
 }
