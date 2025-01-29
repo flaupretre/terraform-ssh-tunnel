@@ -155,7 +155,7 @@ else
   if [ -n "$SSH_PRIVATE_KEY" ]; then
     echo "Adding private key to ssh-agent..." >&2
     echo "${SSH_PRIVATE_KEY}" | ssh-add -
-    trap 'echo "Removing private key from ssh-agent..." >&2; ssh-add -d <<< "${SSH_PRIVATE_KEY}"' EXIT
+    trap 'echo "Removing private key from ssh-agent..." >&2; ssh-add -d <<< "${SSH_PRIVATE_KEY}"; unset SSH_PRIVATE_KEY' EXIT
   fi
 
   # Script must set $TUNNEL_PID
