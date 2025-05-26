@@ -1,6 +1,7 @@
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
+
 Note: This is version 2, a major version including several new features, the most important addition being the support
-of several new tunnel mechanisms in addition to SSH. Compatibility should be preserved for terraform code already using
-version 1 : new variables were added but the former ones are usable as-is and the module output does not change.
+of several new tunnel mechanisms in addition to SSH. Compatibility should be preserved for terraform code using version 1: new variables were added but the former ones are usable as-is and the module output does not change.
 
 Some of these additions are adapted from the multiple forks of this project. I had a look to the changes committed
 in these forks and integrated the ideas I found interesting. Github is not the ideal place to ask permission for this. So,
