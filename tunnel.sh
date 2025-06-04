@@ -9,6 +9,29 @@ ps_is_busybox()
 test -h /bin/ps || return 1
 [ "$(readlink /bin/ps)" = "/bin/busybox" ]
 }
+
+#---
+
+function get_root_pid()
+{
+  local ppid gppid
+  if ps_is_busybox; then
+    # For BusyBox 'ps' (e.g., Alpine Linux)
+    # Retrieve the parent PID (ppid) of the current shell
+    ppid=$(ps -o pid,ppid | awk -v pid="$$" '$1 == pid { print $2 }')
+    # Retrieve the grandparent PID (GPPID) using the PPID
+    gppid=$(ps -o pid,ppid | awk -v pid="$ppid" '$1 == pid { print $2 }')
+  else
+    # For GNU 'ps'
+    # Retrieve the parent PID (ppid) of the current shell
+    ppid=$(ps -o ppid= -p $$)
+    # Retrieve the grandparent PID (gppid) using the PPID
+    gppid=$(ps -o ppid= -p "$ppid")
+  fi
+
+  echo $gppid
+}
+
 #---
 
 process_is_up()
@@ -112,11 +135,7 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
 
   if [ -n "$do_tunnel" ] ; then
 
-    if ps_is_busybox ; then
-        p=$PPID
-    else
-        p=$(ps p $PPID -o "ppid=" | sed 's/ //g')
-    fi
+    p=$(get_root_pid)
     clog=$(mktemp)
     nohup timeout "$TUNNEL_TIMEOUT" "$TUNNEL_SHELL_CMD" "$TUNNEL_ABSPATH/tunnel.sh" "$p" <&- >&- 2>"$clog" &
     TUNNEL_CHILD_PID=$!
