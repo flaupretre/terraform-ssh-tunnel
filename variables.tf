@@ -105,7 +105,7 @@ variable "ssh_private_key" {
   description = "Optional private key content to use for SSH tunneling"
   type        = string
   sensitive   = true
-  default     = null
+  default     = ""
 }
 
 variable "gcloud_cmd" {
