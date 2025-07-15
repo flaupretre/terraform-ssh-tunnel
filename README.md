@@ -70,7 +70,7 @@ You can also provide your own shell script if your gateway is not supported yet.
    * [Outputs](#outputs)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: flaupretre, at: Fri May 31 12:10:18 UTC 2024 -->
+<!-- Added by: flaupretre, at: Tue Jul 15 11:44:19 PM UTC 2025 -->
 
 <!--te-->
 
@@ -350,13 +350,16 @@ I don't know if it can connect to service like DB instances.
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_external"></a> [external](#requirement\_external) | >= 2.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_external"></a> [external](#provider\_external) | n/a |
+| <a name="provider_external"></a> [external](#provider\_external) | >= 2.0.0 |
 
 ## Modules
 
@@ -391,6 +394,7 @@ No modules.
 | <a name="input_putin_khuylo"></a> [putin\_khuylo](#input\_putin\_khuylo) | Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo! | `bool` | `true` | no |
 | <a name="input_shell_cmd"></a> [shell\_cmd](#input\_shell\_cmd) | Alternate command to launch a Posix shell | `string` | `"bash"` | no |
 | <a name="input_ssh_cmd"></a> [ssh\_cmd](#input\_ssh\_cmd) | Alternate command to launch the SSH client (including options) | `string` | `"ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no"` | no |
+| <a name="input_ssh_private_key"></a> [ssh\_private\_key](#input\_ssh\_private\_key) | Optional private key content to use for SSH tunneling | `string` | `""` | no |
 | <a name="input_ssm_document_name"></a> [ssm\_document\_name](#input\_ssm\_document\_name) | AWS SSM only - SSM Document Name | `string` | `"AWS-StartSSHSession"` | no |
 | <a name="input_ssm_options"></a> [ssm\_options](#input\_ssm\_options) | AWS SSM only - Options to add to the 'aws ssm start-session' command line | `string` | `""` | no |
 | <a name="input_ssm_profile"></a> [ssm\_profile](#input\_ssm\_profile) | AWS SSM only - AWS profile (default: empty) | `string` | `""` | no |

@@ -76,8 +76,8 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
   export TUNNEL_PARENT_WAIT_SLEEP
   TUNNEL_SHELL_CMD="$(echo "$query" | sed -e 's/^.*\"shell_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_SHELL_CMD
-  SSH_PRIVATE_KEY="$(echo "$query" | sed -e 's/^.*"ssh_private_key": *"//' -e 's/",.*$//' -e 's/\\n/\n/g' -e 's/\\\"/\"/g')"
-  export SSH_PRIVATE_KEY
+  TUNNEL_SSH_PRIVATE_KEY="$(echo "$query" | sed -e 's/^.*"ssh_private_key": *"//' -e 's/",.*$//' -e 's/\\n/\n/g' -e 's/\\\"/\"/g')"
+  export TUNNEL_SSH_PRIVATE_KEY
   TUNNEL_SSH_CMD="$(echo "$query" | sed -e 's/^.*\"ssh_cmd\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
   export TUNNEL_SSH_CMD
   TUNNEL_SSM_DOCUMENT_NAME="$(echo "$query" | sed -e 's/^.*\"ssm_document_name\": *\"//' -e 's/\",.*$//g' -e 's/\\\"/\"/g')"
@@ -120,7 +120,7 @@ if [ -z "$TUNNEL_TF_PID" ] ; then
     clog=$(mktemp)
     nohup timeout "$TUNNEL_TIMEOUT" "$TUNNEL_SHELL_CMD" "$TUNNEL_ABSPATH/tunnel.sh" "$p" <&- >&- 2>"$clog" &
     TUNNEL_CHILD_PID=$!
-    # A little time for the SSH tunnel process to start or fail
+    # A little time for the tunnel process to start or fail
     sleep "$TUNNEL_PARENT_WAIT_SLEEP"
     # If the child process does not exist anymore after this delay, report failure
     if ! process_is_up "$TUNNEL_CHILD_PID" ; then
@@ -140,9 +140,6 @@ else
     env >&2
   fi
 
-  TUNNEL_PID=""
-  TUNNEL_TODELETE=""
-
   script="$TUNNEL_ABSPATH/gateways/$TUNNEL_TYPE.sh"
   if [ ! -f "$script" ]; then
     echo "$script: file not found"
@@ -152,11 +149,8 @@ else
     eval "$TUNNEL_ENV"
   fi
 
-  if [ -n "$SSH_PRIVATE_KEY" ]; then
-    echo "Adding private key to ssh-agent..." >&2
-    echo "${SSH_PRIVATE_KEY}" | ssh-add -
-    trap 'echo "Removing private key from ssh-agent..." >&2; ssh-add -d <<< "${SSH_PRIVATE_KEY}"; unset SSH_PRIVATE_KEY' EXIT
-  fi
+  TUNNEL_PID=""
+  TUNNEL_TODELETE=""
 
   # Script must set $TUNNEL_PID
   . "$script"
@@ -165,7 +159,7 @@ else
 
   while true ; do
     if ! process_is_up "$TUNNEL_PID" ; then
-      echo "SSH process ($TUNNEL_PID) failure - Aborting" >&2
+      echo "Tunnel process ($TUNNEL_PID) failure - Aborting" >&2
       [ -n "$TUNNEL_TODELETE" ] && /bin/rm -rf $TUNNEL_TODELETE
       exit 1
     fi
