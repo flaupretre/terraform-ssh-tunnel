@@ -167,7 +167,7 @@ else
     sleep 1
   done
 
-  kill $TUNNEL_PID
+  kill "$TUNNEL_PID"
   [ -n "$TUNNEL_TODELETE" ] && /bin/rm -rf $TUNNEL_TODELETE
 fi
 

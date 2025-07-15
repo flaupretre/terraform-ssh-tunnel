@@ -7,7 +7,7 @@ account=`echo $($TUNNEL_GCLOUD_CMD config list account --format "value(core.acco
 
 for key in $($TUNNEL_GCLOUD_CMD compute os-login ssh-keys list | grep -v FINGERPRINT); do
     echo "SSH key '$key' for account '$account' removed"
-    $TUNNEL_GCLOUD_CMD compute os-login ssh-keys remove --key $key
+    $TUNNEL_GCLOUD_CMD compute os-login ssh-keys remove --key "$key"
 done
 
 gw="$TUNNEL_GATEWAY_HOST"
