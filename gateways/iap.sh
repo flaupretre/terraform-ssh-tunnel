@@ -14,7 +14,7 @@ gw="$TUNNEL_GATEWAY_HOST"
 [ "X$TUNNEL_GATEWAY_USER" = X ] || gw="$TUNNEL_GATEWAY_USER@$TUNNEL_GATEWAY_HOST"
 
 project=""
-[ "X$TUNNEL_IAP_PROJECT" = X ] || project="--project \"$TUNNEL_IAP_PROJECT\""
+[ "X$TUNNEL_IAP_PROJECT" = X ] || project="--project $TUNNEL_IAP_PROJECT"
 
 zone=""
 [ "X$TUNNEL_IAP_ZONE" = X ] || zone="--zone $TUNNEL_IAP_ZONE"
